@@ -38,8 +38,7 @@ wishlistSchema.pre('save', function () {
     this.updatedAt = Date.now();
 });
 
-// Index để tìm nhanh
-wishlistSchema.index({ user: 1 });
+// Index để tìm nhanh (user index đã có sẵn do unique: true)
 wishlistSchema.index({ 'items.product': 1 });
 
 module.exports = mongoose.model('Wishlist', wishlistSchema);
