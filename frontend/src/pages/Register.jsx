@@ -16,10 +16,13 @@ export default function Register() {
         try {
             setLoading(true);
             setError(null);
+            console.log('Đang gọi API đăng ký...', { name, email });
             await register(name, email, password);
             navigate('/');
         } catch (err) {
-            setError(err.response?.data?.message || 'Đăng ký thất bại');
+            console.error('Lỗi đăng ký:', err);
+            console.error('Response:', err.response);
+            setError(err.response?.data?.message || err.message || 'Đăng ký thất bại');
         } finally {
             setLoading(false);
         }
