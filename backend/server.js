@@ -21,7 +21,13 @@ connectDB();
 const app = express();
 
 // Middleware
-app.use(cors()); // Cho phép Frontend gọi API
+// Cấu hình CORS cho production
+const corsOptions = {
+  origin: process.env.FRONTEND_URL || '*',
+  credentials: true,
+  optionsSuccessStatus: 200
+};
+app.use(cors(corsOptions)); // Cho phép Frontend gọi API
 app.use(express.json()); // Cho phép nhận dữ liệu JSON
 
 // Route test đơn giản
