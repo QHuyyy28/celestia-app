@@ -17,8 +17,13 @@ export default function Register() {
             setLoading(true);
             setError(null);
             console.log('Đang gọi API đăng ký...', { name, email });
-            await register(name, email, password);
-            navigate('/');
+            const userData = await register(name, email, password);
+            // Redirect dựa theo role
+            if (userData.role === 'admin') {
+                navigate('/admin/dashboard');
+            } else {
+                navigate('/');
+            }
         } catch (err) {
             console.error('Lỗi đăng ký:', err);
             console.error('Response:', err.response);
