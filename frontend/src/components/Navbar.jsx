@@ -63,6 +63,18 @@ export const Navbar = () => {
                                                 Hồ sơ
                                             </Link>
                                         </li>
+                                        {user?.role === 'admin' && (
+                                            <>
+                                                <li>
+                                                    <hr className="dropdown-divider" />
+                                                </li>
+                                                <li>
+                                                    <Link className="dropdown-item" to="/admin/dashboard">
+                                                        ⚙️ Admin Panel
+                                                    </Link>
+                                                </li>
+                                            </>
+                                        )}
                                         <li>
                                             <hr className="dropdown-divider" />
                                         </li>

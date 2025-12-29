@@ -15,8 +15,13 @@ export default function Login() {
         try {
             setLoading(true);
             setError(null);
-            await login(email, password);
-            navigate('/');
+            const userData = await login(email, password);
+            // Redirect dựa theo role
+            if (userData.role === 'admin') {
+                navigate('/admin/dashboard');
+            } else {
+                navigate('/');
+            }
         } catch (err) {
             setError(err.response?.data?.message || 'Đăng nhập thất bại');
         } finally {
