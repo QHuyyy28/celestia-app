@@ -1,123 +1,102 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { blogService } from '../services/blogService';
+import './Blog.css';
 
 export default function Blog() {
     const [blogs, setBlogs] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [page, setPage] = useState(1);
-    const [total, setTotal] = useState(0);
-
-    const limit = 10;
 
     useEffect(() => {
         fetchBlogs();
-    }, [page]);
+    }, []);
 
     const fetchBlogs = async () => {
         try {
             setLoading(true);
-            const response = await blogService.getAll(page, limit, { published: true });
+            const response = await blogService.getAll(1, 100, { published: true });
             setBlogs(response.data.data);
-            setTotal(response.data.pagination.total);
         } catch (err) {
-            setError(err.response?.data?.message || 'Lỗi tải blog');
+            setError(err.response?.data?.message || 'Failed to load stories');
         } finally {
             setLoading(false);
         }
     };
 
-    const pages = Math.ceil(total / limit);
+    const formatDate = (dateString) => {
+        const options = { year: 'numeric', month: 'long', day: 'numeric' };
+        return new Date(dateString).toLocaleDateString('en-US', options);
+    };
 
     return (
-        <div className="container py-5">
-            <h1 className="mb-4">📝 Blog</h1>
+        <div className="blog-page">
+            {/* Hero */}
+            <div className="blog-hero">
+                <h1 className="blog-hero-title">Stories & Inspiration</h1>
+                <p className="blog-hero-subtitle">
+                    Discover the art of candle making, wellness tips, and stories behind our scents
+                </p>
+            </div>
 
-            {loading && (
-                <div className="text-center">
-                    <div className="spinner-border" role="status">
-                        <span className="visually-hidden">Đang tải...</span>
+            {/* Content */}
+            <div className="blog-content">
+                {loading && (
+                    <div className="blog-loading">
+                        <div className="blog-loading-spinner"></div>
+                        <p className="blog-loading-text">Loading stories...</p>
                     </div>
-                </div>
-            )}
+                )}
 
-            {error && (
-                <div className="alert alert-danger">{error}</div>
-            )}
+                {error && (
+                    <div className="blog-error">
+                        <div className="blog-error-message">{error}</div>
+                    </div>
+                )}
 
-            {!loading && !error && (
-                <>
-                    <div className="row g-4 mb-4">
+                {!loading && !error && blogs.length === 0 && (
+                    <div className="blog-empty">
+                        <div className="blog-empty-icon">📖</div>
+                        <h2 className="blog-empty-title">No Stories Yet</h2>
+                        <p className="blog-empty-text">Check back soon for inspiring content</p>
+                    </div>
+                )}
+
+                {!loading && !error && blogs.length > 0 && (
+                    <div className="blog-grid">
                         {blogs.map(blog => (
-                            <div key={blog._id} className="col-md-6 col-lg-4">
-                                <div className="card h-100">
+                            <Link
+                                key={blog._id}
+                                to={`/blog/${blog.slug}`}
+                                className="blog-card"
+                            >
+                                <div className="blog-card-image-container">
                                     <img
-                                        src={blog.image}
+                                        src={blog.image || 'https://via.placeholder.com/400x280/e8dfd5/5d4e37?text=Celestia+Story'}
                                         alt={blog.title}
-                                        className="card-img-top"
-                                        style={{ height: '200px', objectFit: 'cover' }}
+                                        className="blog-card-image"
                                     />
-                                    <div className="card-body">
-                                        <h5 className="card-title">{blog.title}</h5>
-                                        <p className="card-text text-muted">{blog.excerpt}</p>
-                                        <div className="d-flex justify-content-between align-items-center">
-                                            <small className="text-muted">
-                                                👤 {blog.author?.name}
-                                            </small>
-                                            <small className="text-muted">
-                                                👁️ {blog.views}
-                                            </small>
-                                        </div>
-                                    </div>
-                                    <div className="card-footer bg-white">
-                                        <Link
-                                            to={`/blog/${blog.slug}`}
-                                            className="btn btn-primary btn-sm w-100"
-                                        >
-                                            Đọc thêm
-                                        </Link>
+                                    <div className="blog-card-category">
+                                        {blog.category || 'Lifestyle'}
                                     </div>
                                 </div>
-                            </div>
+                                <div className="blog-card-content">
+                                    <div className="blog-card-meta">
+                                        <span>By {blog.author?.name || 'Celestia'}</span>
+                                        <span>•</span>
+                                        <span>{formatDate(blog.createdAt)}</span>
+                                    </div>
+                                    <h3 className="blog-card-title">{blog.title}</h3>
+                                    <p className="blog-card-excerpt">{blog.excerpt}</p>
+                                    <span className="blog-card-read-more">
+                                        Read More →
+                                    </span>
+                                </div>
+                            </Link>
                         ))}
                     </div>
-
-                    {/* Pagination */}
-                    {pages > 1 && (
-                        <nav aria-label="Page navigation">
-                            <ul className="pagination justify-content-center">
-                                <li className={`page-item ${page === 1 ? 'disabled' : ''}`}>
-                                    <button
-                                        className="page-link"
-                                        onClick={() => setPage(page - 1)}
-                                    >
-                                        Trước
-                                    </button>
-                                </li>
-                                {Array.from({ length: Math.min(pages, 5) }, (_, i) => page + i - 2).filter(p => p > 0 && p <= pages).map(p => (
-                                    <li key={p} className={`page-item ${page === p ? 'active' : ''}`}>
-                                        <button
-                                            className="page-link"
-                                            onClick={() => setPage(p)}
-                                        >
-                                            {p}
-                                        </button>
-                                    </li>
-                                ))}
-                                <li className={`page-item ${page === pages ? 'disabled' : ''}`}>
-                                    <button
-                                        className="page-link"
-                                        onClick={() => setPage(page + 1)}
-                                    >
-                                        Tiếp
-                                    </button>
-                                </li>
-                            </ul>
-                        </nav>
-                    )}
-                </>
-            )}
+                )}
+            </div>
         </div>
     );
 }

@@ -1,109 +1,80 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { useCart } from '../hooks/useCart';
 import { useWishlist } from '../hooks/useWishlist';
+import './Navbar.css';
 
 export const Navbar = () => {
     const { user, logout, isAuthenticated } = useAuth();
     const { cart } = useCart();
     const { wishlist } = useWishlist();
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
     return (
-        <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
-            <div className="container">
-                <Link className="navbar-brand fw-bold" to="/">
-                    🛍️ Celestia
+        <nav className="celestia-navbar">
+            <div className="navbar-container">
+                <Link className="navbar-logo" to="/">
+                    <img src="/logo.png" alt="Celestia" className="logo-image" />
+                    <span className="logo-text">Celestia</span>
                 </Link>
-                <button
-                    className="navbar-toggler"
-                    type="button"
-                    data-bs-toggle="collapse"
-                    data-bs-target="#navbarNav"
+
+                <button 
+                    className="mobile-toggle"
+                    onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                 >
-                    <span className="navbar-toggler-icon"></span>
+                    ☰
                 </button>
-                <div className="collapse navbar-collapse" id="navbarNav">
-                    <ul className="navbar-nav ms-auto">
-                        <li className="nav-item">
-                            <Link className="nav-link" to="/products">
-                                Sản phẩm
+
+                <ul className={`navbar-menu ${mobileMenuOpen ? 'active' : ''}`}>
+                    <li><Link to="/">Home</Link></li>
+                    <li><Link to="/products">Shop</Link></li>
+                    <li><Link to="/blog">Stories</Link></li>
+                    <li><Link to="/products">Collections</Link></li>
+                </ul>
+
+                <div className="navbar-icons">
+                    {isAuthenticated ? (
+                        <>
+                            <Link to="/wishlist" className="icon-link">
+                                ♡
+                                {wishlist?.totalItems > 0 && (
+                                    <span className="icon-badge">{wishlist.totalItems}</span>
+                                )}
                             </Link>
-                        </li>
-                        <li className="nav-item">
-                            <Link className="nav-link" to="/blog">
-                                Blog
+                            <Link to="/cart" className="icon-link">
+                                🛍
+                                {cart?.totalItems > 0 && (
+                                    <span className="icon-badge">{cart.totalItems}</span>
+                                )}
                             </Link>
-                        </li>
-                        {isAuthenticated ? (
-                            <>
-                                <li className="nav-item">
-                                    <Link className="nav-link" to="/wishlist">
-                                        ❤️ Wishlist ({wishlist?.totalItems || 0})
-                                    </Link>
-                                </li>
-                                <li className="nav-item">
-                                    <Link className="nav-link" to="/cart">
-                                        🛒 Giỏ ({cart?.totalItems || 0})
-                                    </Link>
-                                </li>
-                                <li className="nav-item dropdown">
-                                    <a
-                                        className="nav-link dropdown-toggle"
-                                        href="#"
-                                        id="userDropdown"
-                                        role="button"
-                                        data-bs-toggle="dropdown"
-                                    >
-                                        {user?.name}
-                                    </a>
-                                    <ul className="dropdown-menu" aria-labelledby="userDropdown">
-                                        <li>
-                                            <Link className="dropdown-item" to="/profile">
-                                                Hồ sơ
-                                            </Link>
-                                        </li>
-                                        {user?.role === 'admin' && (
-                                            <>
-                                                <li>
-                                                    <hr className="dropdown-divider" />
-                                                </li>
-                                                <li>
-                                                    <Link className="dropdown-item" to="/admin/dashboard">
-                                                        ⚙️ Admin Panel
-                                                    </Link>
-                                                </li>
-                                            </>
-                                        )}
-                                        <li>
+                            <div className="user-dropdown">
+                                <div className="user-name">
+                                    {user?.name} ▾
+                                </div>
+                                <div className="dropdown-menu">
+                                    <Link to="/profile" className="dropdown-item">Profile</Link>
+                                    {user?.role === 'admin' && (
+                                        <>
                                             <hr className="dropdown-divider" />
-                                        </li>
-                                        <li>
-                                            <button
-                                                className="dropdown-item"
-                                                onClick={logout}
-                                            >
-                                                Đăng xuất
-                                            </button>
-                                        </li>
-                                    </ul>
-                                </li>
-                            </>
-                        ) : (
-                            <>
-                                <li className="nav-item">
-                                    <Link className="nav-link" to="/login">
-                                        Đăng nhập
-                                    </Link>
-                                </li>
-                                <li className="nav-item">
-                                    <Link className="nav-link" to="/register">
-                                        Đăng ký
-                                    </Link>
-                                </li>
-                            </>
-                        )}
-                    </ul>
+                                            <Link to="/admin/dashboard" className="dropdown-item">
+                                                Admin Panel
+                                            </Link>
+                                        </>
+                                    )}
+                                    <hr className="dropdown-divider" />
+                                    <button onClick={logout} className="dropdown-item">
+                                        Logout
+                                    </button>
+                                </div>
+                            </div>
+                        </>
+                    ) : (
+                        <>
+                            <Link to="/login" className="icon-link">👤</Link>
+                            <Link to="/cart" className="icon-link">🛍</Link>
+                        </>
+                    )}
                 </div>
             </div>
         </nav>

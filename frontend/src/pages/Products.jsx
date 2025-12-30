@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ProductCard } from '../components/ProductCard';
 import { productService } from '../services/productService';
+import './Products.css';
 
 export default function Products() {
     const [products, setProducts] = useState([]);
@@ -17,7 +18,7 @@ export default function Products() {
 
     useEffect(() => {
         fetchProducts();
-    }, [page, search, minPrice, maxPrice, sort]);
+    }, [page, sort]);
 
     const fetchProducts = async () => {
         try {
@@ -32,129 +33,145 @@ export default function Products() {
             setProducts(response.data.data);
             setTotal(response.data.total);
         } catch (err) {
-            setError(err.response?.data?.message || 'Lỗi tải sản phẩm');
+            setError(err.response?.data?.message || 'Failed to load products');
         } finally {
             setLoading(false);
         }
     };
 
-    const handleSearch = (e) => {
-        e.preventDefault();
+    const handleFilter = () => {
         setPage(1);
+        fetchProducts();
     };
 
     const pages = Math.ceil(total / limit);
 
     return (
-        <div className="container py-5">
-            <h1 className="mb-4">📦 Tất cả sản phẩm</h1>
+        <div className="products-page">
+            {/* Hero */}
+            <div className="products-hero">
+                <h1 className="products-hero-title">Our Collection</h1>
+                <p className="products-hero-subtitle">Handcrafted Luxury Candles</p>
+            </div>
 
             {/* Filters */}
-            <div className="row mb-4">
-                <div className="col-md-3">
-                    <input
-                        type="text"
-                        className="form-control"
-                        placeholder="Tìm kiếm..."
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                    />
-                </div>
-                <div className="col-md-2">
-                    <input
-                        type="number"
-                        className="form-control"
-                        placeholder="Giá tối thiểu"
-                        value={minPrice}
-                        onChange={(e) => setMinPrice(e.target.value)}
-                    />
-                </div>
-                <div className="col-md-2">
-                    <input
-                        type="number"
-                        className="form-control"
-                        placeholder="Giá tối đa"
-                        value={maxPrice}
-                        onChange={(e) => setMaxPrice(e.target.value)}
-                    />
-                </div>
-                <div className="col-md-2">
-                    <select
-                        className="form-select"
-                        value={sort}
-                        onChange={(e) => setSort(e.target.value)}
-                    >
-                        <option value="newest">Mới nhất</option>
-                        <option value="price_asc">Giá tăng dần</option>
-                        <option value="price_desc">Giá giảm dần</option>
-                        <option value="name_asc">Tên A-Z</option>
-                    </select>
-                </div>
-                <div className="col-md-1">
-                    <button className="btn btn-primary w-100" onClick={handleSearch}>
-                        Lọc
+            <div className="products-filters">
+                <div className="filters-container">
+                    <div className="filter-group">
+                        <label className="filter-label">Search</label>
+                        <input
+                            type="text"
+                            className="filter-input"
+                            placeholder="Search candles..."
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                        />
+                    </div>
+                    <div className="filter-group">
+                        <label className="filter-label">Min Price</label>
+                        <input
+                            type="number"
+                            className="filter-input"
+                            placeholder="$0"
+                            value={minPrice}
+                            onChange={(e) => setMinPrice(e.target.value)}
+                        />
+                    </div>
+                    <div className="filter-group">
+                        <label className="filter-label">Max Price</label>
+                        <input
+                            type="number"
+                            className="filter-input"
+                            placeholder="$100"
+                            value={maxPrice}
+                            onChange={(e) => setMaxPrice(e.target.value)}
+                        />
+                    </div>
+                    <div className="filter-group">
+                        <label className="filter-label">Sort By</label>
+                        <select
+                            className="filter-select"
+                            value={sort}
+                            onChange={(e) => setSort(e.target.value)}
+                        >
+                            <option value="newest">Newest</option>
+                            <option value="price_asc">Price: Low to High</option>
+                            <option value="price_desc">Price: High to Low</option>
+                            <option value="name_asc">Name: A-Z</option>
+                        </select>
+                    </div>
+                    <button className="filter-btn" onClick={handleFilter}>
+                        Apply
                     </button>
                 </div>
             </div>
 
-            {/* Results */}
-            {loading && (
-                <div className="text-center">
-                    <div className="spinner-border" role="status">
-                        <span className="visually-hidden">Đang tải...</span>
+            {/* Content */}
+            <div className="products-content">
+                {loading && (
+                    <div className="products-loading">
+                        <div className="products-loading-spinner"></div>
+                        <p className="products-loading-text">Loading our collection...</p>
                     </div>
-                </div>
-            )}
+                )}
 
-            {error && (
-                <div className="alert alert-danger">{error}</div>
-            )}
-
-            {!loading && !error && (
-                <>
-                    <div className="row g-4 mb-4">
-                        {products.map(product => (
-                            <div key={product._id} className="col-md-6 col-lg-4">
-                                <ProductCard product={product} />
-                            </div>
-                        ))}
+                {error && (
+                    <div className="products-error">
+                        <div className="products-error-message">{error}</div>
                     </div>
+                )}
 
-                    {/* Pagination */}
-                    {pages > 1 && (
-                        <nav aria-label="Page navigation">
-                            <ul className="pagination justify-content-center">
-                                <li className={`page-item ${page === 1 ? 'disabled' : ''}`}>
-                                    <button
-                                        className="page-link"
-                                        onClick={() => setPage(page - 1)}
-                                    >
-                                        Trước
-                                    </button>
-                                </li>
-                                {Array.from({ length: pages }, (_, i) => i + 1).map(p => (
-                                    <li key={p} className={`page-item ${page === p ? 'active' : ''}`}>
+                {!loading && !error && (
+                    <>
+                        <div className="products-grid">
+                            {products.map(product => (
+                                <ProductCard key={product._id} product={product} />
+                            ))}
+                        </div>
+
+                        {/* Pagination */}
+                        {pages > 1 && (
+                            <div className="products-pagination">
+                                <button
+                                    className="pagination-btn"
+                                    onClick={() => setPage(page - 1)}
+                                    disabled={page === 1}
+                                >
+                                    ‹
+                                </button>
+                                {Array.from({ length: Math.min(pages, 5) }, (_, i) => {
+                                    let pageNum;
+                                    if (pages <= 5) {
+                                        pageNum = i + 1;
+                                    } else if (page <= 3) {
+                                        pageNum = i + 1;
+                                    } else if (page >= pages - 2) {
+                                        pageNum = pages - 4 + i;
+                                    } else {
+                                        pageNum = page - 2 + i;
+                                    }
+                                    return (
                                         <button
-                                            className="page-link"
-                                            onClick={() => setPage(p)}
+                                            key={pageNum}
+                                            className={`pagination-btn ${page === pageNum ? 'active' : ''}`}
+                                            onClick={() => setPage(pageNum)}
                                         >
-                                            {p}
+                                            {pageNum}
                                         </button>
-                                    </li>
-                                ))}
-                                <li className={`page-item ${page === pages ? 'disabled' : ''}`}>
-                                    <button
-                                        className="page-link"
-                                        onClick={() => setPage(page + 1)}
-                                    >
-                                        Tiếp
-                                    </button>
-                                </li>
-                            </ul>
-                        </nav>
-                    )}
-                </>
-            )}
+                                    );
+                                })}
+                                <button
+                                    className="pagination-btn"
+                                    onClick={() => setPage(page + 1)}
+                                    disabled={page === pages}
+                                >
+                                    ›
+                                </button>
+                            </div>
+                        )}
+                    </>
+                )}
+            </div>
         </div>
     );
 }

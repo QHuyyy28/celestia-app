@@ -23,15 +23,17 @@ import CategoryManagement from './pages/CategoryManagement';
 import OrderManagement from './pages/OrderManagement';
 import UserManagement from './pages/UserManagement';
 import BlogManagement from './pages/BlogManagement';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import './App.css';
 
 // Component bảo vệ route admin
 const PrivateAdminRoute = ({ element }) => {
   const { user, loading } = useAuth();
   
-  if (loading) return <div className="text-center mt-5">Đang tải...</div>;
+  if (loading) return (
+    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
+      <div className="loading-spinner"></div>
+    </div>
+  );
   if (!user) return <Navigate to="/login" />;
   if (user.role !== 'admin') return <Navigate to="/" />;
   return element;
@@ -72,9 +74,9 @@ function App() {
       <AuthProvider>
         <CartProvider>
           <WishlistProvider>
-            <div className="d-flex flex-column min-vh-100">
+            <div className="app-container">
               <Navbar />
-              <main className="flex-grow-1">
+              <main className="main-content">
                 <AppContent />
               </main>
               <Footer />

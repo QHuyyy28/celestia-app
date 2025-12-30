@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import './Auth.css';
 
 export default function Login() {
     const [email, setEmail] = useState('');
@@ -23,70 +24,71 @@ export default function Login() {
                 navigate('/');
             }
         } catch (err) {
-            setError(err.response?.data?.message || 'Đăng nhập thất bại');
+            setError(err.response?.data?.message || 'Login failed. Please check your credentials.');
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <div className="container py-5">
-            <div className="row justify-content-center">
-                <div className="col-md-6">
-                    <div className="card">
-                        <div className="card-body p-5">
-                            <h1 className="card-title mb-4 text-center">🔐 Đăng nhập</h1>
+        <div className="auth-container">
+            <div className="auth-card">
+                <div className="auth-icon">🔐</div>
+                <h1 className="auth-title">Welcome Back</h1>
+                <p className="auth-subtitle">Sign in to continue to Celestia</p>
 
-                            {error && (
-                                <div className="alert alert-danger">{error}</div>
-                            )}
+                {error && (
+                    <div className="error-alert">{error}</div>
+                )}
 
-                            <form onSubmit={handleSubmit}>
-                                <div className="mb-3">
-                                    <label htmlFor="email" className="form-label">
-                                        Email
-                                    </label>
-                                    <input
-                                        type="email"
-                                        className="form-control"
-                                        id="email"
-                                        value={email}
-                                        onChange={(e) => setEmail(e.target.value)}
-                                        required
-                                    />
-                                </div>
-
-                                <div className="mb-3">
-                                    <label htmlFor="password" className="form-label">
-                                        Mật khẩu
-                                    </label>
-                                    <input
-                                        type="password"
-                                        className="form-control"
-                                        id="password"
-                                        value={password}
-                                        onChange={(e) => setPassword(e.target.value)}
-                                        required
-                                    />
-                                </div>
-
-                                <button
-                                    type="submit"
-                                    className="btn btn-primary w-100 mb-3"
-                                    disabled={loading}
-                                >
-                                    {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
-                                </button>
-                            </form>
-
-                            <div className="text-center">
-                                <p className="text-muted">
-                                    Chưa có tài khoản?{' '}
-                                    <Link to="/register">Đăng ký ngay</Link>
-                                </p>
-                            </div>
-                        </div>
+                <form onSubmit={handleSubmit} className="auth-form">
+                    <div className="form-group">
+                        <label htmlFor="email" className="form-label">
+                            Email Address
+                        </label>
+                        <input
+                            type="email"
+                            className="form-input"
+                            id="email"
+                            placeholder="you@example.com"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            required
+                        />
                     </div>
+
+                    <div className="form-group">
+                        <label htmlFor="password" className="form-label">
+                            Password
+                        </label>
+                        <input
+                            type="password"
+                            className="form-input"
+                            id="password"
+                            placeholder="Enter your password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            required
+                        />
+                    </div>
+
+                    <button
+                        type="submit"
+                        className="auth-button"
+                        disabled={loading}
+                    >
+                        {loading && <span className="loading-spinner"></span>}
+                        {loading ? 'Signing In...' : 'Sign In'}
+                    </button>
+                </form>
+
+                <div className="auth-divider">
+                    <span>or</span>
+                </div>
+
+                <div className="auth-link">
+                    Don't have an account?{' '}
+                    <Link to="/register">Create one now</Link>
                 </div>
             </div>
         </div>

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ProductCard } from '../components/ProductCard';
 import { productService } from '../services/productService';
+import './Home.css';
 
 export default function Home() {
     const [products, setProducts] = useState([]);
@@ -15,7 +16,7 @@ export default function Home() {
                 const response = await productService.getFeatured();
                 setProducts(response.data.data.slice(0, 6));
             } catch (err) {
-                setError(err.response?.data?.message || 'Lỗi tải sản phẩm');
+                setError(err.response?.data?.message || 'Unable to load products');
             } finally {
                 setLoading(false);
             }
@@ -25,68 +26,139 @@ export default function Home() {
     }, []);
 
     return (
-        <div>
+        <div className="home-page">
             {/* Hero Section */}
-            <section className="bg-light py-5">
-                <div className="container text-center">
-                    <h1 className="display-4 fw-bold mb-4">🛍️ Celestia Store</h1>
-                    <p className="lead mb-4">Mua sắm hàng đầu với giá tốt nhất</p>
-                    <Link to="/products" className="btn btn-primary btn-lg">
-                        Xem tất cả sản phẩm
+            <section className="hero-section">
+                <div className="hero-content">
+                    <div className="hero-icon">
+                        <img src="/logo.png" alt="Celestia" style={{width: '120px', height: '120px'}} />
+                    </div>
+                    <h1 className="hero-title">Celestia Candles</h1>
+                    <p className="hero-subtitle">Handcrafted Luxury</p>
+                    <p className="hero-description">
+                        Discover our collection of artisanal scented candles, 
+                        carefully crafted to transform your space into a sanctuary of serenity.
+                    </p>
+                    <Link to="/products" className="btn-celestia">
+                        Shop Collection
                     </Link>
                 </div>
             </section>
 
             {/* Featured Products */}
-            <section className="py-5">
-                <div className="container">
-                    <h2 className="mb-4">⭐ Sản phẩm nổi bật</h2>
+            <section className="featured-section">
+                <div className="section-header">
+                    <h2 className="section-title">Featured Candles</h2>
+                    <p className="section-subtitle">Our Most Loved Collection</p>
+                </div>
 
-                    {loading && (
-                        <div className="text-center">
-                            <div className="spinner-border" role="status">
-                                <span className="visually-hidden">Đang tải...</span>
-                            </div>
-                        </div>
-                    )}
+                {loading && (
+                    <div className="loading-container">
+                        <div className="loading-spinner"></div>
+                        <p>Loading our finest candles...</p>
+                    </div>
+                )}
 
-                    {error && (
-                        <div className="alert alert-danger" role="alert">
-                            {error}
-                        </div>
-                    )}
+                {error && (
+                    <div className="error-container">
+                        <p className="error-message">{error}</p>
+                    </div>
+                )}
 
-                    {!loading && !error && (
-                        <div className="row g-4">
+                {!loading && !error && (
+                    <>
+                        <div className="products-grid">
                             {products.map(product => (
-                                <div key={product._id} className="col-md-6 col-lg-4">
-                                    <ProductCard product={product} />
-                                </div>
+                                <ProductCard key={product._id} product={product} />
                             ))}
                         </div>
-                    )}
+                        <div className="view-all-container">
+                            <Link to="/products" className="btn-outline-celestia">
+                                View All Products
+                            </Link>
+                        </div>
+                    </>
+                )}
+            </section>
+
+            {/* Collection Showcase */}
+            <section className="collection-showcase">
+                <div className="collection-grid">
+                    <Link to="/products?category=floral" className="collection-card">
+                        <div className="collection-content">
+                            <h3 className="collection-title">Floral</h3>
+                            <p className="collection-description">
+                                Delicate botanical fragrances
+                            </p>
+                            <span className="btn-outline-celestia">Explore</span>
+                        </div>
+                    </Link>
+                    <Link to="/products?category=woody" className="collection-card">
+                        <div className="collection-content">
+                            <h3 className="collection-title">Woody</h3>
+                            <p className="collection-description">
+                                Warm earthy scents
+                            </p>
+                            <span className="btn-outline-celestia">Explore</span>
+                        </div>
+                    </Link>
+                    <Link to="/products?category=citrus" className="collection-card">
+                        <div className="collection-content">
+                            <h3 className="collection-title">Citrus</h3>
+                            <p className="collection-description">
+                                Fresh energizing aromas
+                            </p>
+                            <span className="btn-outline-celestia">Explore</span>
+                        </div>
+                    </Link>
+                </div>
+            </section>
+
+            {/* Story Section */}
+            <section className="story-section">
+                <div className="story-content">
+                    <h2 className="story-title">Our Story</h2>
+                    <p className="story-text">
+                        At Celestia, we believe in the power of scent to transform spaces and elevate moments. 
+                        Each candle is thoughtfully hand-poured using premium soy wax and carefully selected 
+                        fragrances, creating an experience that engages the senses and soothes the soul.
+                    </p>
+                    <Link to="/blog" className="btn-celestia">
+                        Read More
+                    </Link>
                 </div>
             </section>
 
             {/* Features */}
-            <section className="bg-light py-5">
-                <div className="container">
-                    <div className="row text-center">
-                        <div className="col-md-4 mb-4">
-                            <div className="h1 mb-3">🚚</div>
-                            <h5>Giao hàng nhanh</h5>
-                            <p className="text-muted">Giao hàng trong 24-48 giờ</p>
-                        </div>
-                        <div className="col-md-4 mb-4">
-                            <div className="h1 mb-3">💰</div>
-                            <h5>Giá rẻ nhất</h5>
-                            <p className="text-muted">Cam kết giá tốt nhất thị trường</p>
-                        </div>
-                        <div className="col-md-4 mb-4">
-                            <div className="h1 mb-3">🛡️</div>
-                            <h5>An toàn mua sắm</h5>
-                            <p className="text-muted">Thanh toán an toàn 100%</p>
-                        </div>
+            <section className="features-section">
+                <div className="features-grid">
+                    <div className="feature-item">
+                        <div className="feature-icon">🌿</div>
+                        <h3 className="feature-title">Natural Ingredients</h3>
+                        <p className="feature-text">
+                            Made with 100% natural soy wax and premium essential oils
+                        </p>
+                    </div>
+                    <div className="feature-item">
+                        <div className="feature-icon">🤲</div>
+                        <h3 className="feature-title">Hand Poured</h3>
+                        <p className="feature-text">
+                            Each candle is carefully crafted by hand in small batches
+                        </p>
+                    </div>
+                    <div className="feature-item">
+                        <div className="feature-icon">♻️</div>
+                        <h3 className="feature-title">Eco Friendly</h3>
+                        <p className="feature-text">
+                            Sustainable packaging and recyclable materials
+                        </p>
+                    </div>
+                    <div className="feature-item">
+                        <div className="feature-icon">🚚</div>
+                        <h3 className="feature-title">Free Shipping</h3>
+                        <p className="feature-text">
+                            Complimentary delivery on orders over $50
+                        </p>
                     </div>
                 </div>
             </section>

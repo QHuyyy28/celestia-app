@@ -1,45 +1,89 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import './Footer.css';
 
 export const Footer = () => {
+    const [email, setEmail] = useState('');
+
+    const handleNewsletterSubmit = (e) => {
+        e.preventDefault();
+        alert('Thank you for subscribing!');
+        setEmail('');
+    };
+
     return (
-        <footer className="bg-dark text-white mt-5">
-            <div className="container py-5">
-                <div className="row">
-                    <div className="col-md-3 mb-4">
-                        <h5 className="fw-bold mb-3">🛍️ Celestia</h5>
-                        <p className="text-muted">
-                            Mua sắm trực tuyến hàng đầu với sản phẩm chất lượng cao.
+        <footer className="celestia-footer">
+            <div className="footer-container">
+                <div className="footer-main">
+                    <div className="footer-brand">
+                        <h3 className="footer-logo">
+                            <img src="/logo.png" alt="Celestia" style={{width: '40px', height: '40px', marginRight: '10px', verticalAlign: 'middle'}} />
+                            Celestia
+                        </h3>
+                        <p className="footer-description">
+                            Handcrafted luxury candles that transform your space into a sanctuary. 
+                            Every candle tells a story of elegance and serenity.
                         </p>
+                        <div className="social-links">
+                            <a href="https://facebook.com" className="social-link" target="_blank" rel="noopener noreferrer">f</a>
+                            <a href="https://instagram.com" className="social-link" target="_blank" rel="noopener noreferrer">📷</a>
+                            <a href="https://pinterest.com" className="social-link" target="_blank" rel="noopener noreferrer">P</a>
+                            <a href="https://twitter.com" className="social-link" target="_blank" rel="noopener noreferrer">🐦</a>
+                        </div>
                     </div>
-                    <div className="col-md-3 mb-4">
-                        <h5 className="fw-bold mb-3">Liên kết</h5>
-                        <ul className="list-unstyled">
-                            <li><Link to="/" className="text-muted text-decoration-none">Trang chủ</Link></li>
-                            <li><Link to="/products" className="text-muted text-decoration-none">Sản phẩm</Link></li>
-                            <li><Link to="/blog" className="text-muted text-decoration-none">Blog</Link></li>
+
+                    <div className="footer-column">
+                        <h4>Shop</h4>
+                        <ul className="footer-links">
+                            <li><Link to="/products">All Products</Link></li>
+                            <li><Link to="/products?category=floral">Floral Collection</Link></li>
+                            <li><Link to="/products?category=woody">Woody Collection</Link></li>
+                            <li><Link to="/products?category=citrus">Citrus Collection</Link></li>
+                            <li><Link to="/products?featured=true">Featured</Link></li>
                         </ul>
                     </div>
-                    <div className="col-md-3 mb-4">
-                        <h5 className="fw-bold mb-3">Hỗ trợ</h5>
-                        <ul className="list-unstyled">
-                            <li><a href="/" className="text-muted text-decoration-none">Liên hệ</a></li>
-                            <li><a href="/" className="text-muted text-decoration-none">FAQ</a></li>
-                            <li><a href="/" className="text-muted text-decoration-none">Điều khoản</a></li>
+
+                    <div className="footer-column">
+                        <h4>Information</h4>
+                        <ul className="footer-links">
+                            <li><Link to="/blog">Our Stories</Link></li>
+                            <li><a href="#about">About Us</a></li>
+                            <li><a href="#contact">Contact</a></li>
+                            <li><a href="#shipping">Shipping Info</a></li>
+                            <li><a href="#returns">Returns & Exchanges</a></li>
                         </ul>
                     </div>
-                    <div className="col-md-3 mb-4">
-                        <h5 className="fw-bold mb-3">Theo dõi</h5>
-                        <ul className="list-unstyled">
-                            <li><a href="/" className="text-muted text-decoration-none">Facebook</a></li>
-                            <li><a href="/" className="text-muted text-decoration-none">Instagram</a></li>
-                            <li><a href="/" className="text-muted text-decoration-none">Twitter</a></li>
-                        </ul>
+
+                    <div className="footer-column">
+                        <h4>Newsletter</h4>
+                        <p className="footer-description">
+                            Subscribe to receive updates, access to exclusive deals, and more.
+                        </p>
+                        <form className="newsletter-form" onSubmit={handleNewsletterSubmit}>
+                            <input
+                                type="email"
+                                className="newsletter-input"
+                                placeholder="Your email"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                required
+                            />
+                            <button type="submit" className="newsletter-btn">
+                                Join
+                            </button>
+                        </form>
                     </div>
                 </div>
-                <hr className="bg-secondary" />
-                <div className="text-center text-muted">
-                    <p>&copy; 2025 Celestia Store. Tất cả quyền được bảo lưu.</p>
+
+                <div className="footer-bottom">
+                    <div className="copyright">
+                        © 2025 Celestia Candles. All rights reserved.
+                    </div>
+                    <div className="payment-methods">
+                        <span className="payment-icon">💳</span>
+                        <span className="payment-icon">💰</span>
+                        <span className="payment-icon">🏦</span>
+                    </div>
                 </div>
             </div>
         </footer>
