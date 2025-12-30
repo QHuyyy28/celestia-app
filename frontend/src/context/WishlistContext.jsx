@@ -56,7 +56,9 @@ export const WishlistProvider = ({ children }) => {
     const toggleWishlist = async (productId) => {
         try {
             const response = await wishlistService.toggleWishlist(productId);
-            setWishlist(response.data.data.wishlist);
+            // Backend returns { wishlist, inWishlist } inside data
+            const updatedWishlist = response.data.data.wishlist || response.data.data;
+            setWishlist(updatedWishlist);
             return response.data;
         } catch (err) {
             setError(err.response?.data?.message || 'Thao tác wishlist thất bại');

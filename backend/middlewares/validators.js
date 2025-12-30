@@ -53,7 +53,12 @@ exports.validateUpdateProfile = [
     body('phone')
         .optional()
         .trim()
-        .matches(/^[0-9]{10,11}$/).withMessage('Số điện thoại không hợp lệ (10-11 chữ số)'),
+        .custom(value => {
+            if (value && !/^[0-9]{10,11}$/.test(value)) {
+                throw new Error('Số điện thoại không hợp lệ (10-11 chữ số)');
+            }
+            return true;
+        }),
     body('address')
         .optional()
         .trim()

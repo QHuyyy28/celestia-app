@@ -11,7 +11,10 @@ export const ProductCard = ({ product }) => {
     const { addToCart } = useCart();
     const navigate = useNavigate();
 
-    const isInWishlist = wishlist?.items?.some(item => item.product._id === product._id);
+    const isInWishlist = wishlist?.items?.some(item => {
+        const itemId = typeof item.product === 'string' ? item.product : item.product?._id;
+        return itemId === product._id;
+    });
 
     const handleWishlist = async (e) => {
         e.preventDefault();
@@ -23,7 +26,8 @@ export const ProductCard = ({ product }) => {
         try {
             await toggleWishlist(product._id);
         } catch (error) {
-            console.error('Error:', error);
+            console.error('Wishlist Error:', error);
+            alert(error.response?.data?.message || 'Lỗi cập nhật wishlist');
         }
     };
 

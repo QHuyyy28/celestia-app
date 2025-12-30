@@ -63,7 +63,13 @@ exports.register = async (req, res) => {
                 _id: user._id,
                 name: user.name,
                 email: user.email,
+                phone: user.phone,
+                address: user.address,
                 role: user.role,
+                avatar: user.avatar,
+                isEmailVerified: user.isEmailVerified,
+                isSubscribedToNotifications: user.isSubscribedToNotifications,
+                createdAt: user.createdAt,
                 token: generateToken(user._id)
             }
         });
@@ -120,8 +126,13 @@ exports.login = async (req, res) => {
                 _id: user._id,
                 name: user.name,
                 email: user.email,
+                phone: user.phone,
+                address: user.address,
                 role: user.role,
                 avatar: user.avatar,
+                isEmailVerified: user.isEmailVerified,
+                isSubscribedToNotifications: user.isSubscribedToNotifications,
+                createdAt: user.createdAt,
                 token: generateToken(user._id)
             }
         });
@@ -173,17 +184,30 @@ exports.updateProfile = async (req, res) => {
             });
         }
 
-        // Cập nhật thông tin
-        user.name = name || user.name;
-        user.phone = phone || user.phone;
-        user.address = address || user.address;
+        // Cập nhật thông tin (chỉ cập nhật nếu có giá trị mới)
+        if (name) user.name = name;
+        if (phone !== undefined && phone !== '') user.phone = phone;
+        if (address !== undefined && address !== '') user.address = address;
 
         await user.save();
+
+        // Trả về user đầy đủ thông tin
+        const userData = {
+            _id: user._id,
+            email: user.email,
+            name: user.name,
+            phone: user.phone,
+            address: user.address,
+            role: user.role,
+            isEmailVerified: user.isEmailVerified,
+            isSubscribedToNotifications: user.isSubscribedToNotifications,
+            createdAt: user.createdAt
+        };
 
         res.status(200).json({
             success: true,
             message: 'Cập nhật thông tin thành công',
-            data: user
+            data: userData
         });
     } catch (error) {
         console.error(error);

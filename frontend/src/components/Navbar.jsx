@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { useCart } from '../hooks/useCart';
 import { useWishlist } from '../hooks/useWishlist';
@@ -9,7 +9,13 @@ export const Navbar = () => {
     const { user, logout, isAuthenticated } = useAuth();
     const { cart } = useCart();
     const { wishlist } = useWishlist();
+    const navigate = useNavigate();
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+    const handleLogout = () => {
+        logout();
+        navigate('/');
+    };
 
     return (
         <nav className="celestia-navbar">
@@ -63,7 +69,7 @@ export const Navbar = () => {
                                         </>
                                     )}
                                     <hr className="dropdown-divider" />
-                                    <button onClick={logout} className="dropdown-item">
+                                    <button onClick={handleLogout} className="dropdown-item">
                                         Logout
                                     </button>
                                 </div>

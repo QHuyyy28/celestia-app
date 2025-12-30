@@ -182,7 +182,16 @@
 
 @media (max-width: 768px) {
   .navbar-container {
-    padding: 0 20px;
+    padding: 0 15px;
+  }
+
+  .logo-image {
+    height: 40px;
+  }
+
+  .logo-text {
+    font-size: 20px;
+    letter-spacing: 1px;
   }
 
   .mobile-toggle {
@@ -200,6 +209,7 @@
     padding: 20px 0;
     box-shadow: 0 4px 10px rgba(93, 78, 55, 0.1);
     display: none;
+    z-index: 999;
   }
 
   .navbar-menu.active {
@@ -217,7 +227,24 @@
     gap: 15px;
   }
 
-  .logo-text {
-    font-size: 24px;
+  .user-dropdown {
+    position: static;
+  }
+
+  .dropdown-menu {
+    position: static;
+    box-shadow: none;
+    border: none;
+    padding: 0;
+    min-width: auto;
+    display: flex;
+    flex-direction: column;
+    opacity: 1;
+    transform: none;
+    background: transparent;
+  }
+
+  .user-dropdown:hover .dropdown-menu {
+    display: none;
   }
 }

@@ -49,6 +49,10 @@ const {
 
 const router = express.Router();
 
+// Admin routes (đặt trước để tránh conflict với :id)
+router.get('/stats/overview', protect, admin, getOrderStats);
+router.get('/', protect, admin, validatePagination, handleValidationErrors, getAllOrders);
+
 // Protected routes (phải đăng nhập)
 router.post('/', protect, validateCreateOrder, handleValidationErrors, createOrder);
 router.get('/my-orders', protect, validatePagination, handleValidationErrors, getMyOrders);
@@ -56,8 +60,6 @@ router.get('/:id', protect, validateOrderId, handleValidationErrors, getOrderByI
 router.put('/:id/cancel', protect, validateOrderId, handleValidationErrors, cancelOrder);
 
 // Admin routes
-router.get('/', protect, admin, validatePagination, handleValidationErrors, getAllOrders);
 router.put('/:id/status', protect, admin, validateOrderId, handleValidationErrors, updateOrderStatus);
-router.get('/stats/overview', protect, admin, getOrderStats);
 
 module.exports = router;
