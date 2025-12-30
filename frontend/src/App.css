@@ -1,51 +1,82 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600&display=swap');
+
 :root {
-  --primary-color: #007bff;
-  --danger-color: #dc3545;
-  --success-color: #28a745;
+  --primary-brown: #5d4e37;
+  --secondary-brown: #7d6e5a;
+  --light-beige: #f5f1ed;
+  --cream: #e8dfd5;
+  --dark-brown: #3d3020;
+  --gold-accent: #c9a26c;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
 body {
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  font-family: 'Montserrat', sans-serif;
+  background-color: var(--light-beige);
+  color: var(--primary-brown);
+  line-height: 1.6;
 }
 
-.min-vh-100 {
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 500;
+  color: var(--dark-brown);
+}
+
+.app-container {
+  display: flex;
+  flex-direction: column;
   min-height: 100vh;
 }
 
-.flex-grow-1 {
+.main-content {
   flex: 1;
 }
 
-.product-card {
-  transition: transform 0.2s, box-shadow 0.2s;
+/* Custom Buttons */
+.btn-celestia {
+  background-color: var(--primary-brown);
+  color: #fff;
+  border: 2px solid var(--primary-brown);
+  padding: 12px 40px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-radius: 0;
 }
 
-.product-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+.btn-celestia:hover {
+  background-color: transparent;
+  color: var(--primary-brown);
 }
 
-.navbar {
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+.btn-outline-celestia {
+  background-color: transparent;
+  color: var(--primary-brown);
+  border: 2px solid var(--primary-brown);
+  padding: 12px 40px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-radius: 0;
 }
 
-footer {
-  background-color: #f8f9fa;
-  border-top: 1px solid #dee2e6;
-}
-
-.btn-primary {
-  background-color: var(--primary-color);
-  border-color: var(--primary-color);
-}
-
-.btn-primary:hover {
-  background-color: #0056b3;
-  border-color: #0056b3;
-}
-
-.card {
-  border: 1px solid #dee2e6;
+.btn-outline-celestia:hover {
+  background-color: var(--primary-brown);
+  color: #fff;
 }
 
 .text-danger {

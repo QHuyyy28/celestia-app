@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useCart } from '../hooks/useCart';
+import './Cart.css';
 
 export default function Cart() {
     const { cart, removeFromCart, updateQuantity, clearCart } = useCart();
@@ -8,12 +9,17 @@ export default function Cart() {
 
     if (!cart || !cart.items || cart.items.length === 0) {
         return (
-            <div className="container py-5 text-center">
-                <h2>🛒 Giỏ hàng trống</h2>
-                <p className="text-muted">Hãy thêm sản phẩm để bắt đầu mua sắm</p>
-                <Link to="/products" className="btn btn-primary">
-                    Tiếp tục mua sắm
-                </Link>
+            <div className="cart-page">
+                <div className="cart-container">
+                    <div className="empty-cart">
+                        <div className="empty-cart-icon">🛍️</div>
+                        <h2 className="empty-cart-title">Your Cart is Empty</h2>
+                        <p className="empty-cart-text">Discover our collection and find something special</p>
+                        <Link to="/products" className="btn-celestia">
+                            Explore Products
+                        </Link>
+                    </div>
+                </div>
             </div>
         );
     }
@@ -41,47 +47,46 @@ export default function Cart() {
     };
 
     return (
-        <div className="container py-5">
-            <h1 className="mb-4">🛒 Giỏ hàng</h1>
+        <div className="cart-page">
+            <div className="cart-container">
+                <div className="cart-header">
+                    <h1 className="cart-title">Shopping Cart</h1>
+                    <p className="cart-subtitle">{cart.totalItems} Item{cart.totalItems > 1 ? 's' : ''} in your cart</p>
+                </div>
 
-            <div className="row">
-                {/* Cart Items */}
-                <div className="col-lg-8">
-                    {cart.items.map(item => (
-                        <div key={item.product._id} className="card mb-3">
-                            <div className="card-body">
-                                <div className="row align-items-center">
-                                    <div className="col-md-2">
-                                        <img
-                                            src={item.product.images?.[0] || 'https://via.placeholder.com/100'}
-                                            alt={item.product.name}
-                                            className="img-fluid rounded"
-                                        />
-                                    </div>
-                                    <div className="col-md-4">
-                                        <h5 className="card-title">{item.product.name}</h5>
-                                        <p className="text-danger fw-bold">
-                                            ₫{item.price?.toLocaleString()}
-                                        </p>
-                                    </div>
-                                    <div className="col-md-3">
-                                        <div className="input-group" style={{ maxWidth: '120px' }}>
+                <div className="cart-content">
+                    {/* Cart Items */}
+                    <div className="cart-items">
+                        {cart.items.map(item => (
+                            <div key={item.product._id} className="cart-item">
+                                <img
+                                    src={item.product.images?.[0] || 'https://via.placeholder.com/120x150/e8dfd5/5d4e37?text=Celestia'}
+                                    alt={item.product.name}
+                                    className="cart-item-image"
+                                />
+                                <div className="cart-item-details">
+                                    <h3 className="cart-item-name">{item.product.name}</h3>
+                                    <p className="cart-item-price">${item.price?.toFixed(2)}</p>
+                                    <div className="cart-item-quantity">
+                                        <span className="quantity-label">Quantity:</span>
+                                        <div className="quantity-controls">
                                             <button
-                                                className="btn btn-sm btn-outline-secondary"
+                                                className="quantity-btn"
                                                 onClick={() => handleQuantityChange(item.product._id, item.quantity - 1)}
-                                                disabled={updating === item.product._id}
+                                                disabled={updating === item.product._id || item.quantity <= 1}
                                             >
-                                                -
+                                                −
                                             </button>
                                             <input
                                                 type="number"
-                                                className="form-control form-control-sm text-center"
+                                                className="quantity-input"
                                                 value={item.quantity}
-                                                onChange={(e) => handleQuantityChange(item.product._id, parseInt(e.target.value))}
+                                                onChange={(e) => handleQuantityChange(item.product._id, parseInt(e.target.value) || 1)}
                                                 disabled={updating === item.product._id}
+                                                min="1"
                                             />
                                             <button
-                                                className="btn btn-sm btn-outline-secondary"
+                                                className="quantity-btn"
                                                 onClick={() => handleQuantityChange(item.product._id, item.quantity + 1)}
                                                 disabled={updating === item.product._id}
                                             >
@@ -89,54 +94,50 @@ export default function Cart() {
                                             </button>
                                         </div>
                                     </div>
-                                    <div className="col-md-2 text-end">
-                                        <p className="fw-bold">₫{item.total?.toLocaleString()}</p>
-                                    </div>
-                                    <div className="col-md-1">
-                                        <button
-                                            className="btn btn-sm btn-danger"
-                                            onClick={() => handleRemove(item.product._id)}
-                                        >
-                                            🗑️
-                                        </button>
-                                    </div>
+                                </div>
+                                <div className="cart-item-actions">
+                                    <p className="cart-item-total">${item.total?.toFixed(2)}</p>
+                                    <button
+                                        className="remove-btn"
+                                        onClick={() => handleRemove(item.product._id)}
+                                    >
+                                        Remove
+                                    </button>
                                 </div>
                             </div>
-                        </div>
-                    ))}
+                        ))}
 
-                    <button
-                        className="btn btn-outline-danger"
-                        onClick={clearCart}
-                    >
-                        Xóa tất cả
-                    </button>
-                </div>
-
-                {/* Cart Summary */}
-                <div className="col-lg-4">
-                    <div className="card">
-                        <div className="card-body">
-                            <h5 className="card-title">Tóm tắt đơn hàng</h5>
-                            <hr />
-                            <div className="d-flex justify-content-between mb-2">
-                                <span>Số sản phẩm:</span>
-                                <strong>{cart.totalItems}</strong>
-                            </div>
-                            <div className="d-flex justify-content-between mb-3">
-                                <span>Tổng tiền:</span>
-                                <strong className="text-danger h5">
-                                    ₫{cart.totalPrice?.toLocaleString()}
-                                </strong>
-                            </div>
-                            <hr />
-                            <button className="btn btn-primary w-100 mb-2">
-                                Thanh toán
+                        <div className="cart-actions">
+                            <button
+                                className="clear-cart-btn"
+                                onClick={clearCart}
+                            >
+                                Clear Cart
                             </button>
-                            <Link to="/products" className="btn btn-outline-primary w-100">
-                                Tiếp tục mua sắm
-                            </Link>
                         </div>
+                    </div>
+
+                    {/* Cart Summary */}
+                    <div className="cart-summary">
+                        <h3 className="summary-title">Order Summary</h3>
+                        <div className="summary-row">
+                            <span className="summary-label">Subtotal</span>
+                            <span className="summary-value">${cart.totalPrice?.toFixed(2)}</span>
+                        </div>
+                        <div className="summary-row">
+                            <span className="summary-label">Shipping</span>
+                            <span className="summary-value">Free</span>
+                        </div>
+                        <div className="summary-row">
+                            <span className="summary-label">Total</span>
+                            <span className="summary-value summary-total">${cart.totalPrice?.toFixed(2)}</span>
+                        </div>
+                        <button className="checkout-btn">
+                            Proceed to Checkout
+                        </button>
+                        <Link to="/products" className="continue-shopping-btn">
+                            Continue Shopping
+                        </Link>
                     </div>
                 </div>
             </div>
