@@ -5,6 +5,7 @@ import './ProductManagement.css';
 
 export default function ProductManagement() {
     const [products, setProducts] = useState([]);
+    const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [showForm, setShowForm] = useState(false);
@@ -20,10 +21,11 @@ export default function ProductManagement() {
         price: '',
         stock: '',
         category: '',
-        image: ''
+        images: []
     });
 
     useEffect(() => {
+        fetchCategories();
         fetchProducts();
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [page, search]);
@@ -44,26 +46,73 @@ export default function ProductManagement() {
         }
     }
 
+    async function fetchCategories() {
+        try {
+            const response = await fetch('http://localhost:5000/api/categories');
+            const data = await response.json();
+            if (data.success) {
+                setCategories(data.data || []);
+            }
+        } catch (err) {
+            console.error('Lỗi tải danh mục:', err);
+        }
+    }
+
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-        setFormData({
-            ...formData,
-            [name]: value
-        });
+        if (name === 'images') {
+            const imageArray = value.split(',').map(img => img.trim()).filter(img => img);
+            setFormData({ ...formData, images: imageArray });
+        } else {
+            setFormData({ ...formData, [name]: value });
+        }
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
 
         try {
+            setError(null);
+            
+            // Validate required fields
+            if (!formData.name.trim()) {
+                setError('❌ Tên sản phẩm không được để trống');
+                return;
+            }
+            if (!formData.description.trim()) {
+                setError('❌ Mô tả không được để trống (tối thiểu 10 ký tự)');
+                return;
+            }
+            if (!formData.price || formData.price <= 0) {
+                setError('❌ Giá phải lớn hơn 0');
+                return;
+            }
+            if (!formData.stock || formData.stock < 0) {
+                setError('❌ Số lượng không được để trống');
+                return;
+            }
+            if (!formData.category) {
+                setError('❌ Danh mục không được để trống');
+                return;
+            }
+            if (!formData.images || formData.images.length === 0) {
+                setError('❌ Phải có ít nhất 1 ảnh');
+                return;
+            }
+            
+            // Prepare data - convert string numbers to actual numbers
+            const submitData = {
+                ...formData,
+                price: parseFloat(formData.price),
+                stock: parseInt(formData.stock, 10)
+            };
+            
             if (editingProduct) {
-                // Update
-                await productService.update(editingProduct._id, formData);
-                alert('Cập nhật sản phẩm thành công');
+                await productService.update(editingProduct._id, submitData);
+                alert('✅ Cập nhật sản phẩm thành công');
             } else {
-                // Create
-                await productService.create(formData);
-                alert('Tạo sản phẩm thành công');
+                await productService.create(submitData);
+                alert('✅ Tạo sản phẩm thành công');
             }
 
             // Reset form
@@ -73,7 +122,7 @@ export default function ProductManagement() {
                 price: '',
                 stock: '',
                 category: '',
-                image: ''
+                images: []
             });
             setEditingProduct(null);
             setShowForm(false);
@@ -81,7 +130,23 @@ export default function ProductManagement() {
             // Reload products
             fetchProducts();
         } catch (err) {
-            alert(err.response?.data?.message || 'Lỗi khi lưu sản phẩm');
+            const errorMsg = err.response?.data?.message || 'Lỗi khi lưu sản phẩm';
+            
+            // Xử lý lỗi validation
+            if (err.response?.status === 400) {
+                const errors = err.response?.data?.errors || [];
+                if (errors.length > 0) {
+                    setError(`❌ ${errors.map(e => e.message).join(', ')}`);
+                } else {
+                    setError(`❌ ${errorMsg}`);
+                }
+            } else if (err.response?.status === 401) {
+                setError('❌ Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
+            } else if (err.response?.status === 403) {
+                setError('❌ Bạn không có quyền thực hiện hành động này.');
+            } else {
+                setError(`❌ ${errorMsg}`);
+            }
         }
     };
 
@@ -93,7 +158,7 @@ export default function ProductManagement() {
             price: product.price,
             stock: product.stock,
             category: product.category?._id || '',
-            image: product.image
+            images: product.images || []
         });
         setShowForm(true);
     };
@@ -101,11 +166,20 @@ export default function ProductManagement() {
     const handleDelete = async (id) => {
         if (window.confirm('Bạn chắc chắn muốn xóa sản phẩm này?')) {
             try {
+                setError(null);
                 await productService.delete(id);
-                alert('Xóa sản phẩm thành công');
+                alert('✅ Xóa sản phẩm thành công');
                 fetchProducts();
             } catch (err) {
-                alert(err.response?.data?.message || 'Lỗi khi xóa sản phẩm');
+                const errorMsg = err.response?.data?.message || 'Lỗi khi xóa sản phẩm';
+                
+                if (err.response?.status === 401) {
+                    setError('❌ Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
+                } else if (err.response?.status === 403) {
+                    setError('❌ Bạn không có quyền xóa sản phẩm này.');
+                } else {
+                    setError(`❌ ${errorMsg}`);
+                }
             }
         }
     };
@@ -119,7 +193,7 @@ export default function ProductManagement() {
             price: '',
             stock: '',
             category: '',
-            image: ''
+            images: []
         });
     };
 
@@ -129,6 +203,20 @@ export default function ProductManagement() {
         <AdminLayout>
             <div className="product-management">
                 <h1 className="page-title">📦 Quản lý sản phẩm</h1>
+
+                {/* Error Message */}
+                {error && (
+                    <div style={{
+                        background: '#f8d7da',
+                        color: '#721c24',
+                        padding: '15px',
+                        borderRadius: '6px',
+                        marginBottom: '20px',
+                        border: '1px solid #f5c6cb'
+                    }}>
+                        {error}
+                    </div>
+                )}
 
                 {/* Search & Add Button */}
                 <div className="management-toolbar">
@@ -203,24 +291,31 @@ export default function ProductManagement() {
 
                             <div className="form-row">
                                 <div className="form-group">
-                                    <label>Danh mục</label>
-                                    <input
-                                        type="text"
+                                    <label>Danh mục *</label>
+                                    <select
                                         name="category"
                                         value={formData.category}
                                         onChange={handleInputChange}
-                                        placeholder="ID danh mục (nếu cần)"
-                                    />
+                                        required
+                                    >
+                                        <option value="">-- Chọn danh mục --</option>
+                                        {categories.map(cat => (
+                                            <option key={cat._id} value={cat._id}>
+                                                {cat.name}
+                                            </option>
+                                        ))}
+                                    </select>
                                 </div>
 
                                 <div className="form-group">
-                                    <label>Link ảnh</label>
-                                    <input
-                                        type="url"
-                                        name="image"
-                                        value={formData.image}
+                                    <label>Link ảnh (nhập nhiều URL, cách nhau bằng dấu phẩy) *</label>
+                                    <textarea
+                                        name="images"
+                                        value={formData.images.join(', ')}
                                         onChange={handleInputChange}
-                                    />
+                                        placeholder="https://example.com/image1.jpg, https://example.com/image2.jpg"
+                                        rows="2"
+                                    ></textarea>
                                 </div>
                             </div>
 

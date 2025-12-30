@@ -19,4 +19,29 @@ api.interceptors.request.use((config) => {
     return config;
 });
 
+// Xử lý lỗi response
+api.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        // Nếu token hết hạn hoặc không có
+        if (error.response?.status === 401) {
+            // Xóa token cũ
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            
+            // Redirect về login
+            if (window.location.pathname !== '/login') {
+                window.location.href = '/login?expired=true';
+            }
+        }
+        
+        // Nếu không có quyền truy cập
+        if (error.response?.status === 403) {
+            console.error('Bạn không có quyền truy cập tài nguyên này');
+        }
+        
+        return Promise.reject(error);
+    }
+);
+
 export default api;

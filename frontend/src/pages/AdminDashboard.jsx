@@ -20,8 +20,8 @@ export default function AdminDashboard() {
     const fetchDashboardData = async () => {
         try {
             setLoading(true);
-            // Lấy sản phẩm để đếm
-            const productsRes = await productService.getAll(1, 1000);
+            // Lấy sản phẩm để đếm (dùng limit 100 để tránh lỗi)
+            const productsRes = await productService.getAll(1, 100);
             const totalProducts = productsRes.data.total;
 
             // Lấy 5 sản phẩm gần nhất

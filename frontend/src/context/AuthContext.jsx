@@ -24,10 +24,10 @@ export const AuthProvider = ({ children }) => {
         try {
             setError(null);
             const response = await authService.login(email, password);
-            const { token, data } = response.data;
+            const { token, ...userData } = response.data.data;
             localStorage.setItem('token', token);
-            localStorage.setItem('user', JSON.stringify(data));
-            setUser(data);
+            localStorage.setItem('user', JSON.stringify(userData));
+            setUser(userData);
             return response.data;
         } catch (err) {
             setError(err.response?.data?.message || 'Đăng nhập thất bại');
@@ -39,10 +39,10 @@ export const AuthProvider = ({ children }) => {
         try {
             setError(null);
             const response = await authService.register(name, email, password);
-            const { token, data } = response.data;
+            const { token, ...userData } = response.data.data;
             localStorage.setItem('token', token);
-            localStorage.setItem('user', JSON.stringify(data));
-            setUser(data);
+            localStorage.setItem('user', JSON.stringify(userData));
+            setUser(userData);
             return response.data;
         } catch (err) {
             setError(err.response?.data?.message || 'Đăng ký thất bại');
