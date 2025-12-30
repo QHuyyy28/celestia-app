@@ -30,7 +30,9 @@ export default function Home() {
             {/* Hero Section */}
             <section className="hero-section">
                 <div className="hero-content">
-                    <div className="hero-icon">✨</div>
+                    <div className="hero-icon">
+                        <img src="/logo.png" alt="Celestia" style={{width: '120px', height: '120px'}} />
+                    </div>
                     <h1 className="hero-title">Celestia Candles</h1>
                     <p className="hero-subtitle">Handcrafted Luxury</p>
                     <p className="hero-description">

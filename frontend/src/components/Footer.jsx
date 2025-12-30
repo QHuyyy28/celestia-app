@@ -16,7 +16,10 @@ export const Footer = () => {
             <div className="footer-container">
                 <div className="footer-main">
                     <div className="footer-brand">
-                        <h3 className="footer-logo">✨ Celestia</h3>
+                        <h3 className="footer-logo">
+                            <img src="/logo.png" alt="Celestia" style={{width: '40px', height: '40px', marginRight: '10px', verticalAlign: 'middle'}} />
+                            Celestia
+                        </h3>
                         <p className="footer-description">
                             Handcrafted luxury candles that transform your space into a sanctuary. 
                             Every candle tells a story of elegance and serenity.

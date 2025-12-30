@@ -15,7 +15,8 @@ export const Navbar = () => {
         <nav className="celestia-navbar">
             <div className="navbar-container">
                 <Link className="navbar-logo" to="/">
-                    <span className="logo-text">✨ Celestia</span>
+                    <img src="/logo.png" alt="Celestia" className="logo-image" />
+                    <span className="logo-text">Celestia</span>
                 </Link>
 
                 <button 
