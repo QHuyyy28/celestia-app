@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import './Auth.css';
 
@@ -12,6 +12,15 @@ export default function Profile() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [success, setSuccess] = useState(null);
+
+    // Sync formData với user khi user thay đổi
+    useEffect(() => {
+        setFormData({
+            name: user?.name || '',
+            phone: user?.phone || '',
+            address: user?.address || ''
+        });
+    }, [user]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -27,10 +36,21 @@ export default function Profile() {
             setLoading(true);
             setError(null);
             setSuccess(null);
+            
+            // Validasi client-side trước
+            if (!formData.name?.trim()) {
+                setError('Tên không được để trống');
+                setLoading(false);
+                return;
+            }
+            
             await updateProfile(formData);
             setSuccess('Cập nhật hồ sơ thành công!');
+            setTimeout(() => setSuccess(null), 3000);
         } catch (err) {
-            setError(err.response?.data?.message || 'Cập nhật thất bại');
+            console.error('Update profile error:', err);
+            const errorMsg = err.response?.data?.message || err.message || 'Cập nhật thất bại';
+            setError(errorMsg);
         } finally {
             setLoading(false);
         }
