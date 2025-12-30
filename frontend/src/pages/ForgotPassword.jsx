@@ -1,14 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth';
+import { authService } from '../services/authService';
 import './Auth.css';
 
-export default function Login() {
+export default function ForgotPassword() {
     const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    const { login } = useAuth();
+    const [success, setSuccess] = useState(false);
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
@@ -16,26 +15,52 @@ export default function Login() {
         try {
             setLoading(true);
             setError(null);
-            const userData = await login(email, password);
-            // Redirect dựa theo role
-            if (userData.role === 'admin') {
-                navigate('/admin/dashboard');
-            } else {
-                navigate('/');
-            }
+            await authService.forgotPassword(email);
+            setSuccess(true);
+            setEmail('');
+            // Redirect sau 3 giây
+            setTimeout(() => {
+                navigate('/login');
+            }, 3000);
         } catch (err) {
-            setError(err.response?.data?.message || 'Login failed. Please check your credentials.');
+            setError(err.response?.data?.message || 'Failed to send reset email. Please try again.');
         } finally {
             setLoading(false);
         }
     };
 
+    if (success) {
+        return (
+            <div className="auth-container">
+                <div className="auth-card">
+                    <div className="auth-icon">✓</div>
+                    <h1 className="auth-title">Email Sent!</h1>
+                    <p className="auth-subtitle">Check your email for password reset instructions</p>
+                    
+                    <div className="success-message">
+                        <p>
+                            We've sent a password reset link to your email address. 
+                            Please check your inbox and click the link to reset your password.
+                        </p>
+                        <p style={{ marginTop: '15px', fontSize: '12px', color: '#999' }}>
+                            Redirecting to login page in 3 seconds...
+                        </p>
+                    </div>
+
+                    <Link to="/login" className="auth-button" style={{ textAlign: 'center', textDecoration: 'none', display: 'inline-block', width: '100%', boxSizing: 'border-box' }}>
+                        Back to Login
+                    </Link>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="auth-container">
             <div className="auth-card">
                 <div className="auth-icon">🔐</div>
-                <h1 className="auth-title">Welcome Back</h1>
-                <p className="auth-subtitle">Sign in to continue to Celestia</p>
+                <h1 className="auth-title">Forgot Password?</h1>
+                <p className="auth-subtitle">Enter your email to reset your password</p>
 
                 {error && (
                     <div className="error-alert">{error}</div>
@@ -57,31 +82,13 @@ export default function Login() {
                         />
                     </div>
 
-                    <div className="form-group">
-                        <label htmlFor="password" className="form-label">
-                            Password
-                        </label>
-                        <input
-                            type="password"
-                            className="form-input"
-                            id="password"
-                            placeholder="Enter your password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            required
-                        />
-                        <Link to="/forgot-password" style={{ fontSize: '12px', marginTop: '5px', display: 'block' }}>
-                            Forgot password?
-                        </Link>
-                    </div>
-
                     <button
                         type="submit"
                         className="auth-button"
                         disabled={loading}
                     >
                         {loading && <span className="loading-spinner"></span>}
-                        {loading ? 'Signing In...' : 'Sign In'}
+                        {loading ? 'Sending...' : 'Send Reset Link'}
                     </button>
                 </form>
 
@@ -89,6 +96,11 @@ export default function Login() {
                     <span>or</span>
                 </div>
 
+                <div className="auth-link">
+                    Remember your password?{' '}
+                    <Link to="/login">Sign in here</Link>
+                </div>
+                
                 <div className="auth-link">
                     Don't have an account?{' '}
                     <Link to="/register">Create one now</Link>

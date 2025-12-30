@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
+import './Auth.css';
 
 export default function Profile() {
     const { user, updateProfile } = useAuth();
@@ -36,88 +37,104 @@ export default function Profile() {
     };
 
     return (
-        <div className="container py-5">
-            <div className="row justify-content-center">
-                <div className="col-md-6">
-                    <div className="card">
-                        <div className="card-body p-5">
-                            <h1 className="card-title mb-4 text-center">👤 Hồ sơ cá nhân</h1>
+        <div className="auth-container" style={{ minHeight: '80vh', paddingTop: '40px', paddingBottom: '40px' }}>
+            <div className="auth-card" style={{ maxWidth: '600px' }}>
+                <div className="auth-icon">👤</div>
+                <h1 className="auth-title">Hồ sơ cá nhân</h1>
+                <p className="auth-subtitle">Quản lý thông tin tài khoản của bạn</p>
 
-                            {error && <div className="alert alert-danger">{error}</div>}
-                            {success && <div className="alert alert-success">{success}</div>}
+                {error && (
+                    <div className="error-alert">{error}</div>
+                )}
+                {success && (
+                    <div style={{ background: '#d4edda', color: '#155724', padding: '12px', borderRadius: '4px', marginBottom: '20px', fontSize: '14px' }}>
+                        ✓ {success}
+                    </div>
+                )}
 
-                            <form onSubmit={handleSubmit}>
-                                <div className="mb-3">
-                                    <label className="form-label">Email</label>
-                                    <input
-                                        type="email"
-                                        className="form-control"
-                                        value={user?.email}
-                                        disabled
-                                    />
-                                </div>
+                <form onSubmit={handleSubmit} className="auth-form">
+                    <div className="form-group">
+                        <label htmlFor="email" className="form-label">
+                            Email (Không thể chỉnh sửa)
+                        </label>
+                        <input
+                            type="email"
+                            className="form-input"
+                            id="email"
+                            value={user?.email || ''}
+                            disabled
+                            style={{ background: '#f5f5f5', cursor: 'not-allowed' }}
+                        />
+                    </div>
 
-                                <div className="mb-3">
-                                    <label htmlFor="name" className="form-label">
-                                        Tên
-                                    </label>
-                                    <input
-                                        type="text"
-                                        className="form-control"
-                                        id="name"
-                                        name="name"
-                                        value={formData.name}
-                                        onChange={handleChange}
-                                    />
-                                </div>
+                    <div className="form-group">
+                        <label htmlFor="name" className="form-label">
+                            Tên
+                        </label>
+                        <input
+                            type="text"
+                            className="form-input"
+                            id="name"
+                            name="name"
+                            value={formData.name}
+                            onChange={handleChange}
+                            placeholder="Nhập tên của bạn"
+                        />
+                    </div>
 
-                                <div className="mb-3">
-                                    <label htmlFor="phone" className="form-label">
-                                        Số điện thoại
-                                    </label>
-                                    <input
-                                        type="tel"
-                                        className="form-control"
-                                        id="phone"
-                                        name="phone"
-                                        value={formData.phone}
-                                        onChange={handleChange}
-                                    />
-                                </div>
+                    <div className="form-group">
+                        <label htmlFor="phone" className="form-label">
+                            Số điện thoại
+                        </label>
+                        <input
+                            type="tel"
+                            className="form-input"
+                            id="phone"
+                            name="phone"
+                            value={formData.phone}
+                            onChange={handleChange}
+                            placeholder="0123456789"
+                        />
+                    </div>
 
-                                <div className="mb-3">
-                                    <label htmlFor="address" className="form-label">
-                                        Địa chỉ
-                                    </label>
-                                    <textarea
-                                        className="form-control"
-                                        id="address"
-                                        name="address"
-                                        value={formData.address}
-                                        onChange={handleChange}
-                                        rows="3"
-                                    />
-                                </div>
+                    <div className="form-group">
+                        <label htmlFor="address" className="form-label">
+                            Địa chỉ
+                        </label>
+                        <textarea
+                            className="form-input"
+                            id="address"
+                            name="address"
+                            value={formData.address}
+                            onChange={handleChange}
+                            placeholder="Nhập địa chỉ của bạn"
+                            rows="4"
+                            style={{ resize: 'vertical', minHeight: '100px' }}
+                        />
+                    </div>
 
-                                <button
-                                    type="submit"
-                                    className="btn btn-primary w-100"
-                                    disabled={loading}
-                                >
-                                    {loading ? 'Đang cập nhật...' : 'Cập nhật hồ sơ'}
-                                </button>
-                            </form>
+                    <button
+                        type="submit"
+                        className="auth-button"
+                        disabled={loading}
+                    >
+                        {loading && <span className="loading-spinner"></span>}
+                        {loading ? 'Đang cập nhật...' : 'Cập nhật hồ sơ'}
+                    </button>
+                </form>
 
-                            <div className="mt-4">
-                                <h5>Thông tin khác</h5>
-                                <p>
-                                    <strong>Vai trò:</strong> {user?.role === 'admin' ? '👨‍💼 Quản trị viên' : '👤 Khách hàng'}
-                                </p>
-                                <p>
-                                    <strong>Ngày tạo:</strong> {new Date(user?.createdAt).toLocaleDateString('vi-VN')}
-                                </p>
-                            </div>
-                        </div>
+                <div style={{ marginTop: '30px', paddingTop: '20px', borderTop: '1px solid #e8dfd5' }}>
+                    <h3 style={{ fontSize: '16px', fontWeight: '600', color: '#5d4e37', marginBottom: '15px' }}>ℹ️ Thông tin tài khoản</h3>
+                    <div style={{ fontSize: '14px', color: '#666', lineHeight: '1.8' }}>
+                        <p><strong>Vai trò:</strong> {user?.role === 'admin' ? '👨‍💼 Quản trị viên' : '👤 Khách hàng'}</p>
+                        <p><strong>Email xác nhận:</strong> {user?.isEmailVerified ? '✓ Đã xác nhận' : '⚠️ Chưa xác nhận'}</p>
+                        <p><strong>Ngày tạo:</strong> {new Date(user?.createdAt).toLocaleDateString('vi-VN', { 
+                            weekday: 'long', 
+                            year: 'numeric', 
+                            month: 'long', 
+                            day: 'numeric' 
+                        })}</p>
+                        <p><strong>Nhận thông báo:</strong> {user?.isSubscribedToNotifications ? '🔔 Bật' : '🔇 Tắt'}</p>
                     </div>
                 </div>
             </div>

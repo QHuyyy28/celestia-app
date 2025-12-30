@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background: #f5f5f5; }
+        .container { max-width: 600px; margin: 20px auto; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .header { background: linear-gradient(135deg, #5d4e37 0%, #7a6b56 100%); color: white; padding: 40px 20px; text-align: center; }
+        .header h1 { font-size: 28px; margin-bottom: 10px; }
+        .content { padding: 30px 20px; }
+        .verification-code { background: #f0f0f0; border: 2px dashed #5d4e37; padding: 20px; border-radius: 4px; text-align: center; margin: 20px 0; }
+        .code { font-size: 32px; font-weight: bold; color: #5d4e37; letter-spacing: 5px; font-family: monospace; }
+        .cta-button { display: inline-block; background: #5d4e37; color: white; padding: 12px 30px; border-radius: 4px; text-decoration: none; margin: 20px 0; font-weight: 600; }
+        .note { background: #e8f4f8; border-left: 4px solid #3498db; padding: 12px; border-radius: 4px; font-size: 13px; color: #333; margin: 20px 0; }
+        .footer { background: #f5f5f5; padding: 20px; text-align: center; border-top: 1px solid #e8dfd5; font-size: 12px; color: #999; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>✉️ Xác nhận tài khoản</h1>
+            <p>Hoàn thành đăng ký của bạn</p>
+        </div>
+
+        <div class="content">
+            <p style="margin-bottom: 20px; font-size: 15px;">Xin chào <strong>{{userName}}</strong>,</p>
+
+            <p style="margin-bottom: 20px; line-height: 1.6;">
+                Cảm ơn bạn đã đăng ký tài khoản Celestia! Để hoàn thành việc xác nhận tài khoản, vui lòng nhấp vào nút dưới đây:
+            </p>
+
+            <div style="text-align: center;">
+                <a href="{{verificationLink}}" class="cta-button">Xác nhận tài khoản</a>
+            </div>
+
+            <p style="margin-bottom: 20px; font-size: 13px; color: #666;">
+                Hoặc sao chép và dán đường link này vào trình duyệt:
+            </p>
+            <div style="background: #f9f9f9; padding: 10px; border-radius: 4px; word-break: break-all; font-size: 12px; color: #666; margin-bottom: 20px;">
+                {{verificationLink}}
+            </div>
+
+            <div class="note">
+                <strong>⏰ Lưu ý:</strong> Đường link xác nhận này sẽ hết hạn sau 24 giờ. Nếu bạn không yêu cầu xác nhận tài khoản, vui lòng bỏ qua email này.
+            </div>
+
+            <p style="margin-bottom: 20px; font-size: 13px; color: #666;">
+                Nếu bạn gặp vấn đề với đường link, vui lòng <a href="mailto:{{supportEmail}}" style="color: #5d4e37;">liên hệ chúng tôi</a>.
+            </p>
+        </div>
+
+        <div class="footer">
+            <p style="margin-bottom: 10px;"><strong>Celestia - Nơi đẹp gặp gỡ chất lượng</strong></p>
+            <p style="margin-top: 10px; opacity: 0.7;">© 2025 Celestia Store. Tất cả quyền được bảo lưu.</p>
+        </div>
+    </div>
+</body>
+</html>

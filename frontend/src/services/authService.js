@@ -16,6 +16,15 @@ export const authService = {
     changePassword: (currentPassword, newPassword, confirmPassword) =>
         api.put('/auth/change-password', { currentPassword, newPassword, confirmPassword }),
 
+    forgotPassword: (email) =>
+        api.post('/auth/forgot-password', { email }),
+
+    resetPassword: (token, newPassword, confirmPassword) =>
+        api.post('/auth/reset-password', { token, newPassword, confirmPassword }),
+
+    verifyEmail: (token) =>
+        api.post('/auth/verify-email', { token }),
+
     logout: () => {
         localStorage.removeItem('token');
         localStorage.removeItem('user');

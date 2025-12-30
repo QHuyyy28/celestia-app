@@ -21,7 +21,9 @@ const orderSchema = new mongoose.Schema({
     fullName: { type: String, required: true },
     phone: { type: String, required: true },
     address: { type: String, required: true },
-    city: { type: String, required: true },
+    ward: { type: String, default: '' },
+    district: { type: String, required: true },
+    province: { type: String, required: true },
     postalCode: { type: String, default: '' }
   },
   paymentMethod: {
@@ -60,8 +62,21 @@ const orderSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'],
-    default: 'Pending'
+    enum: ['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled'],
+    default: 'pending'
+  },
+  statusHistory: [{
+    status: {
+      type: String,
+      enum: ['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled']
+    },
+    note: { type: String, default: '' },
+    updatedAt: { type: Date, default: Date.now }
+  }],
+  shippingInfo: {
+    provider: { type: String, default: 'GHN' },
+    trackingNumber: { type: String, default: '' },
+    estimatedDelivery: { type: Date }
   },
   deliveredAt: {
     type: Date

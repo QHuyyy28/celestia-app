@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background: #f5f5f5; }
+        .container { max-width: 600px; margin: 20px auto; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .header { background: linear-gradient(135deg, #5d4e37 0%, #7a6b56 100%); color: white; padding: 40px 20px; text-align: center; }
+        .header h1 { font-size: 28px; margin-bottom: 10px; }
+        .content { padding: 30px 20px; }
+        .section { margin-bottom: 25px; }
+        .info-row { display: flex; justify-content: space-between; padding: 8px 0; font-size: 14px; }
+        .info-label { color: #666; font-weight: 500; }
+        .info-value { color: #333; font-weight: 600; }
+        .status-badge { display: inline-block; background: #27ae60; color: white; padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; margin: 15px 0; }
+        .status-pending { background: #f39c12; }
+        .status-shipped { background: #3498db; }
+        .status-delivered { background: #27ae60; }
+        .timeline { margin: 20px 0; }
+        .timeline-item { display: flex; padding: 15px 0; border-left: 3px solid #e8dfd5; padding-left: 20px; margin-left: 0; position: relative; }
+        .timeline-item.active { border-left-color: #27ae60; }
+        .timeline-item::before { content: ''; position: absolute; left: -8px; top: 20px; width: 12px; height: 12px; background: white; border: 3px solid #e8dfd5; border-radius: 50%; }
+        .timeline-item.active::before { background: #27ae60; border-color: #27ae60; }
+        .timeline-time { font-size: 12px; color: #999; margin-bottom: 3px; }
+        .timeline-title { font-weight: 600; color: #333; }
+        .timeline-desc { font-size: 13px; color: #666; margin-top: 5px; }
+        .cta-button { display: inline-block; background: #5d4e37; color: white; padding: 12px 30px; border-radius: 4px; text-decoration: none; margin: 20px 0; font-weight: 600; }
+        .footer { background: #f5f5f5; padding: 20px; text-align: center; border-top: 1px solid #e8dfd5; font-size: 12px; color: #999; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📦 {{statusText}}</h1>
+            <p>Đơn hàng #{{orderId}}</p>
+        </div>
+
+        <div class="content">
+            <p style="margin-bottom: 20px; font-size: 15px;">Xin chào <strong>{{customerName}}</strong>,</p>
+
+            <div style="text-align: center;">
+                <span class="status-badge status-{{statusType}}">{{statusBadge}}</span>
+            </div>
+
+            <div class="section">
+                <h2 style="font-size: 16px; color: #5d4e37; margin-bottom: 15px;">📍 Quá trình giao hàng</h2>
+                <div class="timeline">
+                    {{timelineEvents}}
+                </div>
+            </div>
+
+            {{#if shippingDetails}}
+            <div class="section">
+                <h2 style="font-size: 16px; color: #5d4e37; margin-bottom: 15px;">🚚 Chi tiết giao hàng</h2>
+                <div class="info-row">
+                    <span class="info-label">Phương thức vận chuyển:</span>
+                    <span class="info-value">{{shippingProvider}}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Mã vận đơn:</span>
+                    <span class="info-value">{{trackingNumber}}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Dự kiến giao:</span>
+                    <span class="info-value">{{estimatedDelivery}}</span>
+                </div>
+            </div>
+            {{/if}}
+
+            <div class="section">
+                <a href="{{trackingLink}}" class="cta-button">Xem chi tiết đơn hàng</a>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p style="margin-bottom: 10px;"><strong>Celestia - Nơi đẹp gặp gỡ chất lượng</strong></p>
+            <p>Nếu bạn có thắc mắc, vui lòng <a href="mailto:{{supportEmail}}">liên hệ chúng tôi</a></p>
+            <p style="margin-top: 10px; opacity: 0.7;">© 2025 Celestia Store. Tất cả quyền được bảo lưu.</p>
+        </div>
+    </div>
+</body>
+</html>

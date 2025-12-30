@@ -14,6 +14,8 @@ import Wishlist from './pages/Wishlist';
 import Blog from './pages/Blog';
 import BlogDetail from './pages/BlogDetail';
 import Login from './pages/Login';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 import Register from './pages/Register';
 import Profile from './pages/Profile';
 import NotFound from './pages/NotFound';
@@ -51,6 +53,8 @@ function AppContent() {
       <Route path="/blog" element={<Blog />} />
       <Route path="/blog/:slug" element={<BlogDetail />} />
       <Route path="/login" element={<Login />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/register" element={<Register />} />
       <Route path="/profile" element={<Profile />} />
 

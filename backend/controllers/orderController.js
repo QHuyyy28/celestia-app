@@ -1,5 +1,7 @@
 const Order = require('../models/Order');
 const Product = require('../models/Product');
+const User = require('../models/User');
+const { sendOrderConfirmationEmail, sendOrderStatusUpdateEmail } = require('../services/emailService');
 
 // @desc    Tạo đơn hàng mới
 // @route   POST /api/orders
@@ -60,9 +62,18 @@ exports.createOrder = async (req, res) => {
             await product.save();
         }
 
+        // Gửi email xác nhận đơn hàng
+        try {
+            const customer = await User.findById(req.user._id);
+            await sendOrderConfirmationEmail(order, customer);
+        } catch (emailError) {
+            console.error('Failed to send order confirmation email:', emailError);
+            // Vẫn trả về thành công dù email gửi không thành công
+        }
+
         res.status(201).json({
             success: true,
-            message: 'Đặt hàng thành công',
+            message: 'Đặt hàng thành công. Email xác nhận đã được gửi',
             data: order
         });
     } catch (error) {
@@ -197,18 +208,18 @@ exports.getAllOrders = async (req, res) => {
 // @access  Private/Admin
 exports.updateOrderStatus = async (req, res) => {
     try {
-        const { status } = req.body;
+        const { status, shippingProvider, trackingNumber, estimatedDelivery, note } = req.body;
 
-        const validStatuses = ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'];
+        const validStatuses = ['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled'];
 
-        if (!validStatuses.includes(status)) {
+        if (!validStatuses.includes(status.toLowerCase())) {
             return res.status(400).json({
                 success: false,
                 message: `Trạng thái không hợp lệ. Chỉ chấp nhận: ${validStatuses.join(', ')}`
             });
         }
 
-        const order = await Order.findById(req.params.id);
+        const order = await Order.findById(req.params.id).populate('user');
 
         if (!order) {
             return res.status(404).json({
@@ -217,16 +228,29 @@ exports.updateOrderStatus = async (req, res) => {
             });
         }
 
+        const oldStatus = order.status;
+        const newStatus = status.toLowerCase();
+
         // Cập nhật trạng thái
-        order.status = status;
+        order.status = newStatus;
+
+        // Thêm vào history
+        if (!order.statusHistory) {
+            order.statusHistory = [];
+        }
+        order.statusHistory.push({
+            status: newStatus,
+            note: note || '',
+            updatedAt: Date.now()
+        });
 
         // Nếu trạng thái là Delivered, cập nhật deliveredAt
-        if (status === 'Delivered') {
+        if (newStatus === 'delivered') {
             order.deliveredAt = Date.now();
         }
 
         // Nếu hủy đơn hàng, hoàn lại số lượng tồn kho
-        if (status === 'Cancelled' && order.status !== 'Cancelled') {
+        if (newStatus === 'cancelled' && oldStatus !== 'cancelled') {
             for (let item of order.orderItems) {
                 const product = await Product.findById(item.product);
                 if (product) {
@@ -237,6 +261,19 @@ exports.updateOrderStatus = async (req, res) => {
         }
 
         await order.save();
+
+        // Gửi email thông báo cập nhật trạng thái
+        try {
+            const statusData = {
+                shippingProvider: shippingProvider || '',
+                trackingNumber: trackingNumber || '',
+                estimatedDelivery: estimatedDelivery || ''
+            };
+            await sendOrderStatusUpdateEmail(order, order.user, statusData);
+        } catch (emailError) {
+            console.error('Failed to send status update email:', emailError);
+            // Vẫn trả về thành công
+        }
 
         res.status(200).json({
             success: true,

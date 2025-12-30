@@ -42,6 +42,33 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: ''
   },
+  // Email verification
+  isEmailVerified: {
+    type: Boolean,
+    default: false
+  },
+  verificationToken: {
+    type: String,
+    select: false
+  },
+  verificationTokenExpires: {
+    type: Date,
+    select: false
+  },
+  // Password reset
+  resetPasswordToken: {
+    type: String,
+    select: false
+  },
+  resetPasswordExpires: {
+    type: Date,
+    select: false
+  },
+  // Notifications subscription
+  isSubscribedToNotifications: {
+    type: Boolean,
+    default: true
+  },
   createdAt: {
     type: Date,
     default: Date.now
@@ -51,9 +78,9 @@ const userSchema = new mongoose.Schema({
 });
 
 // Mã hóa mật khẩu trước khi lưu
-userSchema.pre('save', async function(next) {
+userSchema.pre('save', async function() {
   if (!this.isModified('password')) {
-    next();
+    return;
   }
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);

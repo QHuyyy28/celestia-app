@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background: #f5f5f5; }
+        .container { max-width: 600px; margin: 20px auto; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .header { background: linear-gradient(135deg, #5d4e37 0%, #7a6b56 100%); color: white; padding: 40px 20px; text-align: center; }
+        .header h1 { font-size: 28px; margin-bottom: 10px; }
+        .header p { font-size: 14px; opacity: 0.9; }
+        .content { padding: 30px 20px; }
+        .section { margin-bottom: 25px; }
+        .section-title { font-size: 16px; font-weight: 600; color: #5d4e37; margin-bottom: 10px; border-bottom: 2px solid #e8dfd5; padding-bottom: 8px; }
+        .info-row { display: flex; justify-content: space-between; padding: 8px 0; font-size: 14px; }
+        .info-label { color: #666; font-weight: 500; }
+        .info-value { color: #333; font-weight: 600; }
+        .items-table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+        .items-table th { background: #f9f9f9; padding: 10px; text-align: left; font-size: 13px; color: #666; border-bottom: 1px solid #e8dfd5; }
+        .items-table td { padding: 10px; border-bottom: 1px solid #f0f0f0; font-size: 13px; }
+        .items-table .price { text-align: right; font-weight: 600; }
+        .total-section { background: #f9f9f9; padding: 15px; border-radius: 4px; }
+        .total-row { display: flex; justify-content: space-between; padding: 8px 0; }
+        .total-row.grand-total { font-size: 18px; font-weight: 700; color: #5d4e37; border-top: 2px solid #e8dfd5; padding-top: 10px; margin-top: 10px; }
+        .cta-button { display: inline-block; background: #5d4e37; color: white; padding: 12px 30px; border-radius: 4px; text-decoration: none; margin: 20px 0; font-weight: 600; text-align: center; }
+        .note { background: #e8f4f8; border-left: 4px solid #3498db; padding: 12px; border-radius: 4px; font-size: 13px; color: #333; margin: 20px 0; }
+        .footer { background: #f5f5f5; padding: 20px; text-align: center; border-top: 1px solid #e8dfd5; font-size: 12px; color: #999; }
+        .footer a { color: #5d4e37; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎉 Đặt hàng thành công!</h1>
+            <p>Cảm ơn bạn đã tin tưởng Celestia</p>
+        </div>
+
+        <div class="content">
+            <p style="margin-bottom: 20px; font-size: 15px;">Xin chào <strong>{{customerName}}</strong>,</p>
+
+            <div class="section">
+                <div class="section-title">📋 Thông tin đơn hàng</div>
+                <div class="info-row">
+                    <span class="info-label">Mã đơn hàng:</span>
+                    <span class="info-value">{{orderId}}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Ngày đặt:</span>
+                    <span class="info-value">{{orderDate}}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Trạng thái:</span>
+                    <span class="info-value" style="color: #27ae60;">✓ Đã xác nhận</span>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">🛍️ Chi tiết sản phẩm</div>
+                <table class="items-table">
+                    <thead>
+                        <tr>
+                            <th>Sản phẩm</th>
+                            <th>Số lượng</th>
+                            <th class="price">Giá</th>
+                            <th class="price">Tổng</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{orderItems}}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="section">
+                <div class="section-title">📦 Địa chỉ giao hàng</div>
+                <div class="info-row">
+                    <span class="info-label">Người nhận:</span>
+                    <span class="info-value">{{recipientName}}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Số điện thoại:</span>
+                    <span class="info-value">{{recipientPhone}}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Địa chỉ:</span>
+                    <span class="info-value" style="text-align: right;">{{deliveryAddress}}</span>
+                </div>
+            </div>
+
+            <div class="total-section">
+                <div class="total-row">
+                    <span>Tạm tính:</span>
+                    <span>{{subtotal}}</span>
+                </div>
+                <div class="total-row">
+                    <span>Phí vận chuyển:</span>
+                    <span>{{shippingFee}}</span>
+                </div>
+                <div class="total-row grand-total">
+                    <span>Tổng cộng:</span>
+                    <span>{{totalAmount}}</span>
+                </div>
+            </div>
+
+            <div class="note">
+                <strong>ℹ️ Thông tin:</strong> Đơn hàng của bạn sẽ được chuẩn bị trong 24 giờ. Chúng tôi sẽ gửi email cập nhật trạng thái giao hàng cho bạn.
+            </div>
+
+            <div style="text-align: center;">
+                <a href="{{trackingLink}}" class="cta-button">Theo dõi đơn hàng</a>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p style="margin-bottom: 10px;"><strong>Celestia - Nơi đẹp gặp gỡ chất lượng</strong></p>
+            <p>Nếu bạn có thắc mắc, vui lòng <a href="mailto:{{supportEmail}}">liên hệ chúng tôi</a></p>
+            <p style="margin-top: 10px; opacity: 0.7;">© 2025 Celestia Store. Tất cả quyền được bảo lưu.</p>
+        </div>
+    </div>
+</body>
+</html>

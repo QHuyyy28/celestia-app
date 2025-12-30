@@ -4,6 +4,7 @@ import { productService } from '../services/productService';
 import { reviewService } from '../services/reviewService';
 import { useCart } from '../hooks/useCart';
 import { useAuth } from '../hooks/useAuth';
+import './ProductDetail.css';
 
 export default function ProductDetail() {
     const { id } = useParams();
@@ -62,9 +63,11 @@ export default function ProductDetail() {
 
     if (loading) {
         return (
-            <div className="container py-5 text-center">
-                <div className="spinner-border" role="status">
-                    <span className="visually-hidden">Đang tải...</span>
+            <div className="product-detail-wrapper">
+                <div className="product-detail-container">
+                    <div className="loading-container">
+                        <div className="spinner"></div>
+                    </div>
                 </div>
             </div>
         );
@@ -72,132 +75,196 @@ export default function ProductDetail() {
 
     if (error) {
         return (
-            <div className="container py-5">
-                <div className="alert alert-danger">{error}</div>
+            <div className="product-detail-wrapper">
+                <div className="product-detail-container">
+                    <div className="error-message">⚠️ {error}</div>
+                </div>
             </div>
         );
     }
 
     if (!product) {
         return (
-            <div className="container py-5">
-                <div className="alert alert-warning">Sản phẩm không tìm thấy</div>
+            <div className="product-detail-wrapper">
+                <div className="product-detail-container">
+                    <div className="error-message">⚠️ Sản phẩm không tìm thấy</div>
+                </div>
             </div>
         );
     }
 
+    // Calculate discount percentage
+    const discountPercent = product.comparePrice && product.comparePrice > 0 
+        ? Math.round(((product.comparePrice - product.price) / product.comparePrice) * 100)
+        : 0;
+
     return (
-        <div className="container py-5">
-            <div className="row">
-                {/* Product Image */}
-                <div className="col-md-6 mb-4">
-                    <img
-                        src={product.images?.[0] || 'https://via.placeholder.com/500'}
-                        alt={product.name}
-                        className="img-fluid rounded"
-                    />
-                </div>
-
-                {/* Product Info */}
-                <div className="col-md-6">
-                    <h1 className="mb-3">{product.name}</h1>
-
-                    <div className="mb-3">
-                        <span className="badge bg-warning text-dark">
-                            ⭐ {product.rating || 0} ({product.numReviews || 0} đánh giá)
-                        </span>
-                    </div>
-
-                    <div className="mb-4">
-                        <h2 className="text-danger">₫{product.price?.toLocaleString()}</h2>
-                        {product.comparePrice > 0 && (
-                            <del className="text-muted">₫{product.comparePrice?.toLocaleString()}</del>
-                        )}
-                    </div>
-
-                    <p className="mb-4">{product.description}</p>
-
-                    <div className="mb-4">
-                        <label className="form-label">Số lượng</label>
-                        <div className="input-group" style={{ maxWidth: '150px' }}>
-                            <button
-                                className="btn btn-outline-secondary"
-                                onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                            >
-                                -
-                            </button>
-                            <input
-                                type="number"
-                                className="form-control text-center"
-                                value={quantity}
-                                onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
+        <div className="product-detail-wrapper">
+            <div className="product-detail-container">
+                {/* Product Main Section */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '40px', marginBottom: '60px' }}>
+                    {/* Product Gallery */}
+                    <div className="product-gallery">
+                        <div className="product-gallery-main">
+                            <img
+                                src={product.images?.[0] || 'https://via.placeholder.com/500'}
+                                alt={product.name}
                             />
-                            <button
-                                className="btn btn-outline-secondary"
-                                onClick={() => setQuantity(quantity + 1)}
-                            >
-                                +
-                            </button>
                         </div>
                     </div>
 
-                    <button
-                        className="btn btn-primary btn-lg w-100 mb-2"
-                        onClick={handleAddToCart}
-                    >
-                        🛒 Thêm vào giỏ hàng
-                    </button>
+                    {/* Product Info */}
+                    <div className="product-info">
+                        <h1 className="product-title">{product.name}</h1>
 
-                    <div className="alert alert-info">
-                        <strong>Tồn kho:</strong> {product.stock || 0} sản phẩm
+                        {/* Rating Section */}
+                        <div className="product-rating-section">
+                            <span className="product-rating-badge">
+                                ⭐ {product.rating || 0}
+                            </span>
+                            <span className="product-rating-count">
+                                ({product.numReviews || 0} đánh giá)
+                            </span>
+                        </div>
+
+                        {/* Price Section */}
+                        <div className="product-price-section">
+                            <div className="product-price">
+                                ₫{product.price?.toLocaleString()}
+                            </div>
+                            {product.comparePrice && product.comparePrice > 0 && (
+                                <div>
+                                    <span className="product-compare-price">
+                                        ₫{product.comparePrice?.toLocaleString()}
+                                    </span>
+                                    {discountPercent > 0 && (
+                                        <span className="product-discount">
+                                            -{discountPercent}%
+                                        </span>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Description */}
+                        <p className="product-description">
+                            {product.description}
+                        </p>
+
+                        {/* Quantity Section */}
+                        <div className="quantity-section">
+                            <label className="quantity-label">Số lượng</label>
+                            <div className="quantity-control">
+                                <button
+                                    className="quantity-btn"
+                                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                                >
+                                    −
+                                </button>
+                                <input
+                                    type="number"
+                                    className="quantity-input"
+                                    value={quantity}
+                                    onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
+                                    min="1"
+                                />
+                                <button
+                                    className="quantity-btn"
+                                    onClick={() => setQuantity(quantity + 1)}
+                                >
+                                    +
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Action Buttons */}
+                        <div className="product-actions">
+                            <button
+                                className="add-to-cart-btn"
+                                onClick={handleAddToCart}
+                                disabled={product.stock <= 0}
+                            >
+                                🛒 Thêm vào giỏ hàng
+                            </button>
+                            <button className="wishlist-btn">
+                                ❤️ Yêu thích
+                            </button>
+                        </div>
+
+                        {/* Stock Info */}
+                        <div className={`stock-info ${product.stock <= 0 ? 'out-of-stock' : product.stock < 10 ? 'low-stock' : ''}`}>
+                            <strong>📦 Tồn kho:</strong>{' '}
+                            {product.stock > 0 
+                                ? `${product.stock} sản phẩm`
+                                : 'Hết hàng'
+                            }
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            {/* Reviews Section */}
-            <div className="row mt-5">
-                <div className="col-12">
-                    <h3>💬 Đánh giá từ khách hàng</h3>
+                {/* Reviews Section */}
+                <div className="reviews-section">
+                    <h2 className="reviews-title">💬 Đánh giá từ khách hàng</h2>
+                    <div className="reviews-container">
+                        {reviewLoading && (
+                            <div style={{ textAlign: 'center', padding: '20px', color: '#999' }}>
+                                Đang tải đánh giá...
+                            </div>
+                        )}
 
-                    {reviewLoading && <p>Đang tải đánh giá...</p>}
+                        {!reviewLoading && reviews.length === 0 && (
+                            <div className="no-reviews">
+                                <p>Chưa có đánh giá nào</p>
+                                {isAuthenticated && (
+                                    <p style={{ fontSize: '14px', marginTop: '10px' }}>
+                                        Hãy là người đầu tiên đánh giá sản phẩm này!
+                                    </p>
+                                )}
+                            </div>
+                        )}
 
-                    {reviews.length === 0 ? (
-                        <p className="text-muted">Chưa có đánh giá nào</p>
-                    ) : (
-                        <div>
-                            {reviews.map(review => (
-                                <div key={review._id} className="card mb-3">
-                                    <div className="card-body">
-                                        <div className="d-flex justify-content-between mb-2">
-                                            <h5 className="card-title">
-                                                {review.user?.name}
+                        {reviews.length > 0 && (
+                            <div>
+                                {reviews.map(review => (
+                                    <div key={review._id} className="review-item">
+                                        <div className="review-header">
+                                            <div>
+                                                <span className="review-author">
+                                                    {review.user?.name}
+                                                </span>
                                                 {review.verified && (
-                                                    <span className="badge bg-success ms-2">✓ Đã mua</span>
+                                                    <span className="review-verified-badge">
+                                                        ✓ Đã mua
+                                                    </span>
                                                 )}
-                                            </h5>
-                                            <span className="badge bg-warning">
+                                            </div>
+                                            <span className="review-rating">
                                                 {'⭐'.repeat(review.rating)}
                                             </span>
                                         </div>
-                                        <h6 className="card-subtitle mb-2 text-muted">{review.title}</h6>
-                                        <p className="card-text">{review.comment}</p>
-                                        <small className="text-muted">
-                                            {new Date(review.createdAt).toLocaleDateString('vi-VN')}
-                                        </small>
+                                        <div className="review-title">{review.title}</div>
+                                        <p className="review-content">{review.comment}</p>
+                                        <div className="review-date">
+                                            {new Date(review.createdAt).toLocaleDateString('vi-VN', {
+                                                year: 'numeric',
+                                                month: 'long',
+                                                day: 'numeric'
+                                            })}
+                                        </div>
                                     </div>
-                                </div>
-                            ))}
-                        </div>
-                    )}
+                                ))}
+                            </div>
+                        )}
 
-                    {isAuthenticated && (
-                        <button
-                            className="btn btn-primary"
-                            onClick={() => navigate(`/product/${id}#write-review`)}
-                        >
-                            Viết đánh giá
-                        </button>
-                    )}
+                        {isAuthenticated && (
+                            <button
+                                className="write-review-btn"
+                                onClick={() => navigate(`/product/${id}#write-review`)}
+                            >
+                                ✏️ Viết đánh giá
+                            </button>
+                        )}
+                    </div>
                 </div>
             </div>
         </div>

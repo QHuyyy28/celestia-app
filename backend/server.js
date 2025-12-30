@@ -10,6 +10,7 @@ const blogRoutes = require('./routes/blogRoutes');
 const cartRoutes = require('./routes/cartRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
 const wishlistRoutes = require('./routes/wishlistRoutes');
+const saleRoutes = require('./routes/saleRoutes');
 
 // Load biến môi trường từ file .env
 dotenv.config();
@@ -29,20 +30,11 @@ const corsOptions = {
 };
 app.use(cors(corsOptions)); // Cho phép Frontend gọi API
 app.use(express.json()); // Cho phép nhận dữ liệu JSON
+app.use(express.urlencoded({ extended: true }));
 
 // Route test đơn giản
 app.get('/', (req, res) => {
   res.json({ message: 'Server is running!' });
-});
-
-// Error handler middleware (bắt lỗi toàn cục)
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({
-    success: false,
-    message: 'Có lỗi xảy ra!',
-    error: err.message
-  });
 });
 
 // API Routes
@@ -54,10 +46,21 @@ app.use('/api/blogs', blogRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/wishlist', wishlistRoutes);
+app.use('/api/sales', saleRoutes);
 
 // Lấy PORT từ .env hoặc dùng 5000 mặc định
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
+});
+
+// Error handler middleware (bắt lỗi toàn cục)
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({
+    success: false,
+    message: 'Có lỗi xảy ra!',
+    error: err.message
+  });
 });
