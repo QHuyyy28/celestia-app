@@ -24,8 +24,7 @@ const productSchema = new mongoose.Schema({
   },
   category: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Category',
-    required: [true, 'Vui lòng chọn danh mục']
+    ref: 'Category'
   },
   stock: {
     type: Number,

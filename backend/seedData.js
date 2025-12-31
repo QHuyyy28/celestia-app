@@ -98,8 +98,8 @@ const seedData = async () => {
             {
                 name: 'iPhone 15 Pro Max',
                 description: 'Điện thoại iPhone 15 Pro Max 256GB - Titan Tự Nhiên. Chip A17 Pro, Camera 48MP, màn hình Super Retina XDR 6.7 inch',
-                price: 29990000,
-                comparePrice: 34990000,
+                price: 15000,
+                comparePrice: 20000,
                 category: categories[0]._id,
                 stock: 50,
                 images: [
@@ -121,8 +121,8 @@ const seedData = async () => {
             {
                 name: 'Samsung Galaxy S24 Ultra',
                 description: 'Samsung Galaxy S24 Ultra 512GB - Titan Gray. Snapdragon 8 Gen 3, Camera 200MP, màn hình Dynamic AMOLED 2X',
-                price: 27990000,
-                comparePrice: 31990000,
+                price: 12000,
+                comparePrice: 18000,
                 category: categories[0]._id,
                 stock: 35,
                 images: [
@@ -136,8 +136,8 @@ const seedData = async () => {
             {
                 name: 'MacBook Pro M3 16 inch',
                 description: 'MacBook Pro M3 16GB 512GB - Space Gray. Chip M3 mạnh mẽ, màn hình Liquid Retina XDR, thời lượng pin 22 giờ',
-                price: 45990000,
-                comparePrice: 49990000,
+                price: 20000,
+                comparePrice: 25000,
                 category: categories[1]._id,
                 stock: 20,
                 images: [
@@ -151,8 +151,8 @@ const seedData = async () => {
             {
                 name: 'Dell XPS 15',
                 description: 'Dell XPS 15 - Intel Core i7-13700H, RAM 16GB, SSD 512GB, RTX 4050, màn hình 15.6 inch FHD+',
-                price: 35990000,
-                comparePrice: 39990000,
+                price: 18000,
+                comparePrice: 22000,
                 category: categories[1]._id,
                 stock: 15,
                 images: ['https://via.placeholder.com/500/0066CC/FFFFFF?text=Dell+XPS'],
@@ -163,8 +163,8 @@ const seedData = async () => {
             {
                 name: 'AirPods Pro Gen 2',
                 description: 'Tai nghe Apple AirPods Pro Gen 2 - Chống ồn chủ động, âm thanh Adaptive, cổng sạc USB-C',
-                price: 5990000,
-                comparePrice: 6990000,
+                price: 10000,
+                comparePrice: 15000,
                 category: categories[2]._id,
                 stock: 100,
                 images: ['https://via.placeholder.com/500/FFFFFF/000000?text=AirPods+Pro'],
@@ -175,8 +175,8 @@ const seedData = async () => {
             {
                 name: 'iPad Pro M2 11 inch',
                 description: 'iPad Pro M2 11 inch 128GB WiFi - Space Gray. Chip M2, màn hình Liquid Retina',
-                price: 21990000,
-                comparePrice: 24990000,
+                price: 15000,
+                comparePrice: 20000,
                 category: categories[3]._id,
                 stock: 25,
                 images: ['https://via.placeholder.com/500/333333/FFFFFF?text=iPad+Pro'],
@@ -214,17 +214,17 @@ const seedData = async () => {
                     fullName: 'Nguyễn Văn A',
                     phone: '0912345678',
                     address: '456 Đường XYZ',
-                    city: 'TP.HCM',
+                    district: 'Quận 3',
+                    province: 'TP.HCM',
                     postalCode: '70000'
                 },
                 paymentMethod: 'VNPay',
-                itemsPrice: 29990000 + (5990000 * 2),
+                itemsPrice: 15000 + (10000 * 2),
                 shippingPrice: 30000,
-                totalPrice: 29990000 + (5990000 * 2) + 30000,
+                totalPrice: 15000 + (10000 * 2) + 30000,
                 isPaid: true,
                 paidAt: new Date(),
-                status: 'Delivered',
-                deliveredAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000) // 2 ngày trước
+                status: 'delivered'
             },
             {
                 user: users[2]._id, // User "Trần Thị B"
@@ -241,15 +241,16 @@ const seedData = async () => {
                     fullName: 'Trần Thị B',
                     phone: '0923456789',
                     address: '789 Đường DEF',
-                    city: 'TP.HCM',
+                    district: 'Quận 5',
+                    province: 'TP.HCM',
                     postalCode: '70000'
                 },
                 paymentMethod: 'COD',
-                itemsPrice: 45990000,
+                itemsPrice: 20000,
                 shippingPrice: 0, // Miễn phí ship
-                totalPrice: 45990000,
+                totalPrice: 20000,
                 isPaid: false,
-                status: 'Processing'
+                status: 'processing'
             },
             {
                 user: users[1]._id,
@@ -266,16 +267,17 @@ const seedData = async () => {
                     fullName: 'Nguyễn Văn A',
                     phone: '0912345678',
                     address: '456 Đường XYZ',
-                    city: 'TP.HCM',
+                    district: 'Quận 3',
+                    province: 'TP.HCM',
                     postalCode: '70000'
                 },
                 paymentMethod: 'VNPay',
-                itemsPrice: 21990000,
+                itemsPrice: 15000,
                 shippingPrice: 30000,
-                totalPrice: 21990000 + 30000,
+                totalPrice: 15000 + 30000,
                 isPaid: true,
                 paidAt: new Date(),
-                status: 'Shipped'
+                status: 'shipped'
             }
         ]);
 

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { AdminLayout } from '../components/AdminLayout';
 import { productService } from '../services/productService';
+import api from '../services/api';
 import './AdminDashboard.css';
 
 export default function AdminDashboard() {
@@ -20,18 +21,24 @@ export default function AdminDashboard() {
     const fetchDashboardData = async () => {
         try {
             setLoading(true);
-            // Lấy sản phẩm để đếm (dùng limit 100 để tránh lỗi)
-            const productsRes = await productService.getAll(1, 100);
-            const totalProducts = productsRes.data.total;
+            
+            // Fetch tất cả stats song song
+            const [productsRes, recentRes, orderStatsRes, userStatsRes] = await Promise.all([
+                productService.getAll(1, 100),
+                productService.getAll(1, 5),
+                api.get('/orders/stats/overview'),
+                api.get('/users/stats/count')
+            ]);
 
-            // Lấy 5 sản phẩm gần nhất
-            const recentRes = await productService.getAll(1, 5);
+            const totalProducts = productsRes.data.total;
+            const orderStats = orderStatsRes.data.data;
+            const userStats = userStatsRes.data.data;
 
             setStats({
                 totalProducts: totalProducts,
-                totalOrders: 0, // TODO: Từ API order
-                totalUsers: 0, // TODO: Từ API user
-                totalRevenue: 0 // TODO: Từ API order
+                totalOrders: orderStats.totalOrders,
+                totalUsers: userStats.totalUsers,
+                totalRevenue: orderStats.totalRevenue
             });
 
             setRecentProducts(recentRes.data.data);

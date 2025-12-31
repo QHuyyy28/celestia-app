@@ -50,7 +50,7 @@ exports.getProductReviews = async (req, res) => {
 
         // Tính toán distribution (1-5 stars)
         const distribution = await Review.aggregate([
-            { $match: { product: mongoose.Types.ObjectId(productId) } },
+            { $match: { product: new mongoose.Types.ObjectId(productId) } },
             {
                 $group: {
                     _id: '$rating',
@@ -114,6 +114,7 @@ exports.getReviewById = async (req, res) => {
 exports.createReview = async (req, res) => {
     try {
         const { productId, rating, title, comment, images } = req.body;
+        console.log('Creating review:', { productId, rating, title, comment });
 
         // Kiểm tra sản phẩm tồn tại
         const product = await Product.findById(productId);
@@ -141,12 +142,15 @@ exports.createReview = async (req, res) => {
         let verified = false;
         const order = await Order.findOne({
             user: req.user._id,
-            'orderItems.product': productId
+            'orderItems.product': productId,
+            status: 'delivered'
         });
 
         if (order) {
             verified = true;
         }
+
+        console.log('User verified status:', verified);
 
         // Tạo review
         const review = await Review.create({
@@ -155,11 +159,15 @@ exports.createReview = async (req, res) => {
             rating,
             title,
             comment,
-            images,
+            images: images || [],
             verified
         });
 
+        console.log('Review created:', review);
+
+        // Populate user info
         await review.populate('user', 'name avatar');
+        console.log('Review after populate:', review);
 
         res.status(201).json({
             success: true,
@@ -167,6 +175,7 @@ exports.createReview = async (req, res) => {
             data: review
         });
     } catch (error) {
+        console.error('Error creating review:', error);
         res.status(500).json({
             success: false,
             message: error.message

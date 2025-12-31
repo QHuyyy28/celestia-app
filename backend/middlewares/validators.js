@@ -100,7 +100,7 @@ exports.validateCreateProduct = [
         .optional()
         .isFloat({ min: 0 }).withMessage('Giá so sánh phải là số dương'),
     body('category')
-        .notEmpty().withMessage('Danh mục không được để trống')
+        .optional({ values: 'falsy' })
         .isMongoId().withMessage('ID danh mục không hợp lệ'),
     body('stock')
         .notEmpty().withMessage('Số lượng không được để trống')
@@ -263,12 +263,22 @@ exports.validateCreateOrder = [
         .isMongoId().withMessage('ID sản phẩm không hợp lệ'),
     body('orderItems.*.quantity')
         .isInt({ min: 1 }).withMessage('Số lượng phải từ 1 trở lên'),
-    body('shippingAddress')
-        .notEmpty().withMessage('Địa chỉ giao hàng không được để trống')
+    body('shippingAddress.fullName')
+        .notEmpty().withMessage('Họ tên không được để trống')
+        .isLength({ min: 2, max: 100 }).withMessage('Họ tên phải từ 2-100 ký tự'),
+    body('shippingAddress.phone')
+        .notEmpty().withMessage('Số điện thoại không được để trống')
+        .matches(/^[0-9]{10,11}$/).withMessage('Số điện thoại phải có 10-11 số'),
+    body('shippingAddress.address')
+        .notEmpty().withMessage('Địa chỉ không được để trống')
         .isLength({ min: 10, max: 200 }).withMessage('Địa chỉ phải từ 10-200 ký tự'),
+    body('shippingAddress.district')
+        .notEmpty().withMessage('Quận/Huyện không được để trống'),
+    body('shippingAddress.province')
+        .notEmpty().withMessage('Tỉnh/Thành phố không được để trống'),
     body('paymentMethod')
         .notEmpty().withMessage('Phương thức thanh toán không được để trống')
-        .isIn(['credit_card', 'debit_card', 'paypal', 'bank_transfer', 'cod'])
+        .isIn(['COD', 'VNPay', 'Momo', 'VietQR'])
         .withMessage('Phương thức thanh toán không hợp lệ'),
     body('totalPrice')
         .notEmpty().withMessage('Tổng giá không được để trống')

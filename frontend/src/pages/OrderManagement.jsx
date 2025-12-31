@@ -44,9 +44,9 @@ export default function OrderManagement() {
 
     const handleStatusChange = async (orderId, newStatus) => {
         try {
-            await api.put(`/orders/${orderId}`, { status: newStatus });
+            await api.put(`/orders/${orderId}/status`, { status: newStatus });
             alert('Cập nhật trạng thái đơn hàng thành công');
-            setPage(1);
+            fetchOrders();
             setSelectedOrder(null);
         } catch (err) {
             alert(err.response?.data?.message || 'Lỗi khi cập nhật');
@@ -189,20 +189,23 @@ export default function OrderManagement() {
                                 <p><strong>Mã đơn:</strong> {selectedOrder._id}</p>
                                 <p><strong>Khách hàng:</strong> {selectedOrder.user?.name}</p>
                                 <p><strong>Email:</strong> {selectedOrder.user?.email}</p>
-                                <p><strong>Địa chỉ:</strong> {selectedOrder.shippingAddress}</p>
+                                <p><strong>Địa chỉ:</strong> {selectedOrder.shippingAddress?.address}, {selectedOrder.shippingAddress?.ward}, {selectedOrder.shippingAddress?.district}, {selectedOrder.shippingAddress?.province}</p>
+                                <p><strong>SĐT:</strong> {selectedOrder.shippingAddress?.phone}</p>
+                                <p><strong>Phương thức thanh toán:</strong> {selectedOrder.paymentMethod}</p>
                                 <p><strong>Tổng tiền:</strong> {selectedOrder.totalPrice?.toLocaleString()} đ</p>
-                                <p><strong>Trạng thái hiện tại:</strong> {selectedOrder.status}</p>
+                                <p><strong>Trạng thái hiện tại:</strong> <span style={{color: getStatusColor(selectedOrder.status), fontWeight: 'bold'}}>{selectedOrder.status.toUpperCase()}</span></p>
 
                                 <div className="status-change">
                                     <label>Thay đổi trạng thái:</label>
                                     <div className="status-buttons">
-                                        {['pending', 'confirmed', 'shipped', 'delivered', 'cancelled'].map((s) => (
+                                        {['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled'].map((s) => (
                                             <button
                                                 key={s}
                                                 className={`status-btn ${selectedOrder.status === s ? 'active' : ''}`}
                                                 onClick={() => handleStatusChange(selectedOrder._id, s)}
+                                                style={{ backgroundColor: selectedOrder.status === s ? getStatusColor(s) : '#e0e0e0' }}
                                             >
-                                                {s}
+                                                {s.toUpperCase()}
                                             </button>
                                         ))}
                                     </div>
@@ -219,9 +222,9 @@ export default function OrderManagement() {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {selectedOrder.items?.map((item, idx) => (
+                                        {selectedOrder.orderItems?.map((item, idx) => (
                                             <tr key={idx}>
-                                                <td>{item.productId?.name || 'N/A'}</td>
+                                                <td>{item.name || 'N/A'}</td>
                                                 <td>{item.quantity}</td>
                                                 <td>{item.price?.toLocaleString()} đ</td>
                                                 <td>{(item.quantity * item.price)?.toLocaleString()} đ</td>

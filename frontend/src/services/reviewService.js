@@ -1,8 +1,16 @@
 import api from './api';
 
 export const reviewService = {
-    getProductReviews: (productId, page = 1, limit = 10, sort = 'newest') =>
-        api.get(`/reviews/product/${productId}?page=${page}&limit=${limit}&sort=${sort}`),
+    getProductReviews: (productId, page = 1, limit = 10, sort = 'newest') => {
+        console.log('Getting reviews for productId:', productId, 'page:', page, 'limit:', limit);
+        return api.get(`/reviews/product/${productId}`, {
+            params: {
+                page,
+                limit,
+                sort
+            }
+        });
+    },
 
     getReviewById: (id) =>
         api.get(`/reviews/${id}`),

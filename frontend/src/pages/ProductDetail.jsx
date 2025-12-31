@@ -40,12 +40,15 @@ export default function ProductDetail() {
 
     useEffect(() => {
         // Kiểm tra xem sản phẩm có trong wishlist không
-        if (wishlist && wishlist.items) {
+        if (wishlist && wishlist.items && Array.isArray(wishlist.items)) {
             const inWish = wishlist.items.some(item => {
+                if (!item || !item.product) return false;
                 const itemId = typeof item.product === 'string' ? item.product : item.product?._id;
                 return itemId === id;
             });
             setIsInWishlist(inWish);
+        } else {
+            setIsInWishlist(false);
         }
     }, [wishlist, id]);
 
@@ -71,36 +74,53 @@ export default function ProductDetail() {
     const fetchReviews = async () => {
         try {
             setReviewLoading(true);
-            // Fetch nhiều reviews hơn để đảm bảo tìm được review của user
+            console.log('Fetching reviews for product:', id);
+            
             const response = await reviewService.getProductReviews(id, 1, 100);
-            console.log('API Response:', response);
-            console.log('Response data:', response.data);
+            console.log('Full API Response:', response);
+            console.log('Response.data:', response.data);
+            console.log('Response.data.data:', response.data.data);
+            
             // API trả về: { success: true, data: reviews, pagination: {...} }
             const reviewsData = Array.isArray(response.data.data) ? response.data.data : [];
-            console.log('Reviews after fetch:', reviewsData);
+            console.log('Reviews count:', reviewsData.length);
+            console.log('Reviews data:', reviewsData);
+            
             setReviews(reviewsData);
+            console.log('Reviews set to state:', reviewsData);
             
             // Kiểm tra user đã review sản phẩm này chưa
             if (isAuthenticated && user && user._id && reviewsData.length > 0) {
+                console.log('Checking if user has reviewed...');
                 const myReview = reviewsData.find(review => {
-                    if (!review.user || !review.user._id) return false;
-                    // So sánh cả string và Object ID
-                    const reviewUserId = typeof review.user._id === 'string' 
-                        ? review.user._id 
-                        : review.user._id.toString();
-                    const currentUserId = typeof user._id === 'string' 
-                        ? user._id 
-                        : user._id.toString();
-                    return reviewUserId === currentUserId;
+                    if (!review || !review.user || !review.user._id) return false;
+                    try {
+                        // So sánh cả string và Object ID
+                        const reviewUserId = typeof review.user._id === 'string' 
+                            ? review.user._id 
+                            : review.user._id.toString();
+                        const currentUserId = typeof user._id === 'string' 
+                            ? user._id 
+                            : user._id.toString();
+                        console.log('Comparing:', reviewUserId, 'vs', currentUserId);
+                        return reviewUserId === currentUserId;
+                    } catch (err) {
+                        console.error('Error comparing user IDs:', err);
+                        return false;
+                    }
                 });
+                console.log('My review:', myReview);
                 if (myReview) {
                     setUserReview(myReview);
+                } else {
+                    setUserReview(null);
                 }
-            } else if (!isAuthenticated || !user) {
+            } else {
                 setUserReview(null);
             }
         } catch (err) {
             console.error('Lỗi tải reviews:', err);
+            console.error('Error details:', err.response);
         } finally {
             setReviewLoading(false);
         }
@@ -184,11 +204,8 @@ export default function ProductDetail() {
             );
             console.log('Review response:', response);
             
-            // Thêm review mới vào đầu danh sách
-            const newReview = response.data.data;
-            console.log('New review:', newReview);
-            setReviews(prevReviews => [newReview, ...prevReviews]);
-            setUserReview(newReview);
+            // Refresh lại danh sách reviews
+            await fetchReviews();
             
             setReviewForm({ rating: 5, title: '', comment: '' });
             setShowReviewForm(false);
@@ -361,6 +378,8 @@ export default function ProductDetail() {
                 <div className="reviews-section">
                     <h2 className="reviews-title">💬 Đánh giá từ khách hàng</h2>
                     <div className="reviews-container">
+                        {console.log('Rendering reviews section, reviewLoading:', reviewLoading, 'reviews.length:', reviews.length)}
+                        
                         {reviewLoading && (
                             <div style={{ textAlign: 'center', padding: '20px', color: '#999' }}>
                                 Đang tải đánh giá...
@@ -378,36 +397,47 @@ export default function ProductDetail() {
                             </div>
                         )}
 
-                        {reviews.length > 0 && (
+                        {!reviewLoading && reviews.length > 0 && (
                             <div>
-                                {reviews.map(review => (
-                                    <div key={review._id} className="review-item">
-                                        <div className="review-header">
-                                            <div>
-                                                <span className="review-author">
-                                                    {review.user?.name}
-                                                </span>
-                                                {review.verified && (
-                                                    <span className="review-verified-badge">
-                                                        ✓ Đã mua
+                                <p style={{ marginBottom: '15px', color: '#666' }}>
+                                    Có {reviews.length} đánh giá
+                                </p>
+                                {console.log('About to render reviews:', reviews)}
+                                {reviews.map((review) => {
+                                    console.log('Rendering review:', review);
+                                    if (!review || !review._id) {
+                                        console.warn('Invalid review data:', review);
+                                        return null;
+                                    }
+                                    return (
+                                        <div key={review._id} className="review-item">
+                                            <div className="review-header">
+                                                <div>
+                                                    <span className="review-author">
+                                                        {review.user?.name || 'Anonymous'}
                                                     </span>
-                                                )}
+                                                    {review.verified && (
+                                                        <span className="review-verified-badge">
+                                                            ✓ Đã mua
+                                                        </span>
+                                                    )}
+                                                </div>
+                                                <span className="review-rating">
+                                                    {'⭐'.repeat(review.rating || 0)}
+                                                </span>
                                             </div>
-                                            <span className="review-rating">
-                                                {'⭐'.repeat(review.rating)}
-                                            </span>
+                                            <div className="review-title">{review.title || ''}</div>
+                                            <p className="review-content">{review.comment || ''}</p>
+                                            <div className="review-date">
+                                                {review.createdAt ? new Date(review.createdAt).toLocaleDateString('vi-VN', {
+                                                    year: 'numeric',
+                                                    month: 'long',
+                                                    day: 'numeric'
+                                                }) : 'N/A'}
+                                            </div>
                                         </div>
-                                        <div className="review-title">{review.title}</div>
-                                        <p className="review-content">{review.comment}</p>
-                                        <div className="review-date">
-                                            {new Date(review.createdAt).toLocaleDateString('vi-VN', {
-                                                year: 'numeric',
-                                                month: 'long',
-                                                day: 'numeric'
-                                            })}
-                                        </div>
-                                    </div>
-                                ))}
+                                    );
+                                })}
                             </div>
                         )}
 

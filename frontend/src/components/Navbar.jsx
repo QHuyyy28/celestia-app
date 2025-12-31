@@ -60,6 +60,7 @@ export const Navbar = () => {
                                 </div>
                                 <div className="dropdown-menu">
                                     <Link to="/profile" className="dropdown-item">Profile</Link>
+                                    <Link to="/orders" className="dropdown-item">My Orders</Link>
                                     {user?.role === 'admin' && (
                                         <>
                                             <hr className="dropdown-divider" />

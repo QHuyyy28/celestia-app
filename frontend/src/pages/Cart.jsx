@@ -132,9 +132,9 @@ export default function Cart() {
                             <span className="summary-label">Total</span>
                             <span className="summary-value summary-total">${cart.totalPrice?.toFixed(2)}</span>
                         </div>
-                        <button className="checkout-btn">
+                        <Link to="/checkout" className="checkout-btn">
                             Proceed to Checkout
-                        </button>
+                        </Link>
                         <Link to="/products" className="continue-shopping-btn">
                             Continue Shopping
                         </Link>

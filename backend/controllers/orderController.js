@@ -2,12 +2,18 @@ const Order = require('../models/Order');
 const Product = require('../models/Product');
 const User = require('../models/User');
 const { sendOrderConfirmationEmail, sendOrderStatusUpdateEmail } = require('../services/emailService');
+const vietqrService = require('../services/vietqrService');
 
 // @desc    Tạo đơn hàng mới
 // @route   POST /api/orders
 // @access  Private
 exports.createOrder = async (req, res) => {
     try {
+        console.log('=== CREATE ORDER REQUEST ===');
+        console.log('User:', req.user?._id);
+        console.log('Payment Method:', req.body.paymentMethod);
+        console.log('Total Price:', req.body.totalPrice);
+        
         const {
             orderItems,
             shippingAddress,
@@ -62,6 +68,23 @@ exports.createOrder = async (req, res) => {
             await product.save();
         }
 
+        // Tạo QR code VietQR nếu thanh toán bằng VietQR
+        let paymentInfo = null;
+        if (paymentMethod === 'VietQR') {
+            try {
+                paymentInfo = await vietqrService.createPaymentInfo(
+                    order._id.toString(),
+                    totalPrice,
+                    `Thanh toan don hang ${order._id}`
+                );
+                console.log('QR Payment Info created:', paymentInfo);
+            } catch (qrError) {
+                console.error('Failed to generate QR code:', qrError);
+                console.error('QR Error details:', qrError.stack);
+                // Không throw error, chỉ log và tiếp tục
+            }
+        }
+
         // Gửi email xác nhận đơn hàng
         try {
             const customer = await User.findById(req.user._id);
@@ -74,10 +97,12 @@ exports.createOrder = async (req, res) => {
         res.status(201).json({
             success: true,
             message: 'Đặt hàng thành công. Email xác nhận đã được gửi',
-            data: order
+            data: order,
+            paymentInfo
         });
     } catch (error) {
-        console.error(error);
+        console.error('Create order error:', error);
+        console.error('Error stack:', error.stack);
         res.status(500).json({
             success: false,
             message: 'Lỗi server',
@@ -244,9 +269,11 @@ exports.updateOrderStatus = async (req, res) => {
             updatedAt: Date.now()
         });
 
-        // Nếu trạng thái là Delivered, cập nhật deliveredAt
+        // Nếu trạng thái là Delivered, cập nhật deliveredAt và isPaid
         if (newStatus === 'delivered') {
             order.deliveredAt = Date.now();
+            order.isPaid = true;
+            order.paidAt = Date.now();
         }
 
         // Nếu hủy đơn hàng, hoàn lại số lượng tồn kho
