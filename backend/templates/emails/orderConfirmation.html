@@ -39,6 +39,14 @@
         <div class="content">
             <p style="margin-bottom: 20px; font-size: 15px;">Xin chào <strong>{{customerName}}</strong>,</p>
 
+            {{#if birthdayGreeting}}
+            <div style="background: linear-gradient(135deg, #ffd6a5 0%, #ffb6a3 100%); padding: 15px; border-radius: 8px; margin-bottom: 25px; text-align: center; border: 2px solid #ff9a76;">
+                <p style="font-size: 16px; color: #333; margin: 0; line-height: 1.6;">
+                    {{birthdayGreeting}}
+                </p>
+            </div>
+            {{/if}}
+
             <div class="section">
                 <div class="section-title">📋 Thông tin đơn hàng</div>
                 <div class="info-row">

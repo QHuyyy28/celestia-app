@@ -21,17 +21,40 @@ const renderTemplate = (templateName, variables = {}) => {
     }
 };
 
+// Hàm kiểm tra nếu hôm nay là sinh nhật
+const isBirthdayToday = (birthday) => {
+    if (!birthday) return false;
+    const today = new Date();
+    const birthDate = new Date(birthday);
+    return today.getMonth() === birthDate.getMonth() && 
+           today.getDate() === birthDate.getDate();
+};
+
+// Hàm tạo lời chúc sinh nhật
+const getBirthdayGreeting = (name) => {
+    const greetings = [
+        `🎂 Hôm nay là sinh nhật của ${name}! Chúc bạn một ngày tuyệt vời đầy niềm vui và may mắn! 🎉`,
+        `🌟 Sinh nhật vui vẻ ${name}! Chúc bạn sức khỏe, hạnh phúc và thành công! 🎊`,
+        `🎈 Ngày sinh nhật của ${name} rồi! Mong bạn luôn tươi cười và có những điều tốt đẹp! 💝`,
+        `🎁 Chúc mừng sinh nhật ${name}! Cảm ơn bạn đã tin tưởng Celestia! 🌹`
+    ];
+    return greetings[Math.floor(Math.random() * greetings.length)];
+};
+
 // 1. Gửi email xác nhận đơn hàng
 const sendOrderConfirmationEmail = async (order, customer) => {
     try {
-        const orderItems = order.items.map(item => `
+        const orderItems = order.orderItems.map(item => `
             <tr>
-                <td>${item.productName}</td>
+                <td>${item.name}</td>
                 <td style="text-align: center;">${item.quantity}</td>
                 <td class="price">${item.price.toLocaleString('vi-VN')}đ</td>
                 <td class="price">${(item.quantity * item.price).toLocaleString('vi-VN')}đ</td>
             </tr>
         `).join('');
+
+        // Check if today is customer's birthday
+        const birthdayGreeting = isBirthdayToday(customer.birthday) ? getBirthdayGreeting(customer.name) : '';
 
         const html = renderTemplate('orderConfirmation.html', {
             customerName: customer.name,
@@ -48,11 +71,12 @@ const sendOrderConfirmationEmail = async (order, customer) => {
             recipientName: order.shippingAddress.fullName,
             recipientPhone: order.shippingAddress.phone,
             deliveryAddress: `${order.shippingAddress.address}, ${order.shippingAddress.ward}, ${order.shippingAddress.district}, ${order.shippingAddress.province}`,
-            subtotal: order.subtotal.toLocaleString('vi-VN') + 'đ',
-            shippingFee: order.shippingFee.toLocaleString('vi-VN') + 'đ',
-            totalAmount: order.totalAmount.toLocaleString('vi-VN') + 'đ',
-            trackingLink: process.env.FRONTEND_URL + `/orders/${order._id}`,
-            supportEmail: process.env.SUPPORT_EMAIL
+            subtotal: order.itemsPrice.toLocaleString('vi-VN') + 'đ',
+            shippingFee: order.shippingPrice.toLocaleString('vi-VN') + 'đ',
+            totalAmount: order.totalPrice.toLocaleString('vi-VN') + 'đ',
+            birthdayGreeting: birthdayGreeting,
+            trackingLink: process.env.FRONTEND_URL + `/profile`,
+            supportEmail: process.env.SUPPORT_EMAIL || 'support@celestia.com'
         });
 
         await sendEmail(

@@ -42,6 +42,11 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: ''
   },
+  // Birthday for birthday greetings
+  birthday: {
+    type: Date,
+    default: null
+  },
   // Email verification
   isEmailVerified: {
     type: Boolean,

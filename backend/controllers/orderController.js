@@ -289,17 +289,17 @@ exports.updateOrderStatus = async (req, res) => {
 
         await order.save();
 
-        // Gửi email thông báo cập nhật trạng thái
-        try {
+        // Gửi email thông báo cập nhật trạng thái (async, không chặn response)
+        if (order.user && order.user.email) {
             const statusData = {
                 shippingProvider: shippingProvider || '',
                 trackingNumber: trackingNumber || '',
                 estimatedDelivery: estimatedDelivery || ''
             };
-            await sendOrderStatusUpdateEmail(order, order.user, statusData);
-        } catch (emailError) {
-            console.error('Failed to send status update email:', emailError);
-            // Vẫn trả về thành công
+            // Không await, gửi async ở background
+            sendOrderStatusUpdateEmail(order, order.user, statusData).catch(err => {
+                console.error('Failed to send status update email:', err);
+            });
         }
 
         res.status(200).json({
@@ -533,6 +533,118 @@ exports.getOrderStats = async (req, res) => {
         });
     } catch (error) {
         console.error(error);
+        res.status(500).json({
+            success: false,
+            message: 'Lỗi server',
+            error: error.message
+        });
+    }
+};
+
+// @desc    Xác nhận khách đã chuyển khoản (VietQR) - User action
+// @route   PUT /api/orders/:id/confirm-transfer
+// @access  Private
+exports.confirmTransfer = async (req, res) => {
+    try {
+        const order = await Order.findById(req.params.id);
+
+        if (!order) {
+            return res.status(404).json({
+                success: false,
+                message: 'Không tìm thấy đơn hàng'
+            });
+        }
+
+        // Kiểm tra quyền
+        if (order.user._id.toString() !== req.user._id.toString()) {
+            return res.status(403).json({
+                success: false,
+                message: 'Bạn không có quyền cập nhật đơn hàng này'
+            });
+        }
+
+        // Chỉ cho phép VietQR
+        if (order.paymentMethod !== 'VietQR') {
+            return res.status(400).json({
+                success: false,
+                message: 'Chỉ có đơn hàng VietQR mới cần xác nhận chuyển khoản'
+            });
+        }
+
+        // Cập nhật trạng thái thành "customer_transferred" - chờ admin xác nhận
+        order.paymentStatus = 'customer_transferred';
+        await order.save();
+
+        res.status(200).json({
+            success: true,
+            message: 'Đã ghi nhận khách chuyển khoản. Admin sẽ kiểm tra trong 1-2 phút.',
+            data: order
+        });
+    } catch (error) {
+        console.error('Confirm transfer error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Lỗi server',
+            error: error.message
+        });
+    }
+};
+
+// @desc    Admin xác nhận thanh toán VietQR
+// @route   PUT /api/orders/:id/verify-payment
+// @access  Private/Admin
+exports.verifyPayment = async (req, res) => {
+    try {
+        const order = await Order.findById(req.params.id);
+
+        if (!order) {
+            return res.status(404).json({
+                success: false,
+                message: 'Không tìm thấy đơn hàng'
+            });
+        }
+
+        // Chỉ admin mới có quyền
+        if (req.user.role !== 'admin') {
+            return res.status(403).json({
+                success: false,
+                message: 'Chỉ admin mới có quyền xác nhận thanh toán'
+            });
+        }
+
+        // Chỉ cho phép VietQR
+        if (order.paymentMethod !== 'VietQR') {
+            return res.status(400).json({
+                success: false,
+                message: 'Chỉ có đơn hàng VietQR mới cần xác nhận thanh toán'
+            });
+        }
+
+        // Cập nhật thanh toán
+        order.isPaid = true;
+        order.paidAt = new Date();
+        order.paymentStatus = 'admin_confirmed';
+        order.paymentVerifiedAt = new Date();
+        // Tự động chuyển sang "confirmed" để chuẩn bị giao hàng
+        order.status = 'confirmed';
+
+        await order.save();
+
+        // Gửi email thông báo
+        try {
+            const customer = await User.findById(order.user);
+            await sendOrderStatusUpdateEmail(order, customer);
+        } catch (emailError) {
+            console.error('Failed to send email:', emailError);
+        }
+
+        res.status(200).json({
+            success: true,
+            message: 'Đã xác nhận thanh toán. Đơn hàng sẵn sàng giao hàng.',
+            data: order
+        });
+    } catch (error) {
+        console.error('Verify payment error:', error);
         res.status(500).json({
             success: false,
             message: 'Lỗi server',

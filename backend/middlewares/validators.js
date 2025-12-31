@@ -278,7 +278,7 @@ exports.validateCreateOrder = [
         .notEmpty().withMessage('Tỉnh/Thành phố không được để trống'),
     body('paymentMethod')
         .notEmpty().withMessage('Phương thức thanh toán không được để trống')
-        .isIn(['COD', 'VNPay', 'Momo', 'VietQR'])
+        .isIn(['COD', 'VietQR'])
         .withMessage('Phương thức thanh toán không hợp lệ'),
     body('totalPrice')
         .notEmpty().withMessage('Tổng giá không được để trống')

@@ -37,7 +37,9 @@ const {
     getAllOrders,
     updateOrderStatus,
     cancelOrder,
-    getOrderStats
+    getOrderStats,
+    confirmTransfer,
+    verifyPayment
 } = require('../controllers/orderController');
 const { protect, admin } = require('../middlewares/auth');
 const {
@@ -58,6 +60,10 @@ router.post('/', protect, validateCreateOrder, handleValidationErrors, createOrd
 router.get('/my-orders', protect, validatePagination, handleValidationErrors, getMyOrders);
 router.get('/:id', protect, validateOrderId, handleValidationErrors, getOrderById);
 router.put('/:id/cancel', protect, validateOrderId, handleValidationErrors, cancelOrder);
+
+// Payment verification routes
+router.put('/:id/confirm-transfer', protect, validateOrderId, handleValidationErrors, confirmTransfer); // User action
+router.put('/:id/verify-payment', protect, admin, validateOrderId, handleValidationErrors, verifyPayment); // Admin action
 
 // Admin routes
 router.put('/:id/status', protect, admin, validateOrderId, handleValidationErrors, updateOrderStatus);

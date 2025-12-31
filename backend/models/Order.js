@@ -28,7 +28,7 @@ const orderSchema = new mongoose.Schema({
   },
   paymentMethod: {
     type: String,
-    enum: ['COD', 'VNPay', 'Momo'],
+    enum: ['COD', 'VietQR'],
     default: 'COD'
   },
   paymentResult: {
@@ -59,6 +59,16 @@ const orderSchema = new mongoose.Schema({
   },
   paidAt: {
     type: Date
+  },
+  paymentStatus: {
+    type: String,
+    enum: ['pending', 'customer_transferred', 'admin_confirmed', 'failed'],
+    default: 'pending',
+    description: 'pending: Chưa thanh toán | customer_transferred: Khách đã chuyển khoản (chờ admin xác nhận) | admin_confirmed: Admin đã xác nhận | failed: Thanh toán thất bại'
+  },
+  paymentVerifiedAt: {
+    type: Date,
+    description: 'Thời gian admin xác nhận thanh toán'
   },
   status: {
     type: String,

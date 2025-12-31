@@ -218,7 +218,7 @@ const seedData = async () => {
                     province: 'TP.HCM',
                     postalCode: '70000'
                 },
-                paymentMethod: 'VNPay',
+                paymentMethod: 'VietQR',
                 itemsPrice: 15000 + (10000 * 2),
                 shippingPrice: 30000,
                 totalPrice: 15000 + (10000 * 2) + 30000,
@@ -271,7 +271,7 @@ const seedData = async () => {
                     province: 'TP.HCM',
                     postalCode: '70000'
                 },
-                paymentMethod: 'VNPay',
+                paymentMethod: 'COD',
                 itemsPrice: 15000,
                 shippingPrice: 30000,
                 totalPrice: 15000 + 30000,
