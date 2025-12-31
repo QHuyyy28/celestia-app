@@ -10,6 +10,7 @@ import Home from './pages/Home';
 import Products from './pages/Products';
 import ProductDetail from './pages/ProductDetail';
 import Cart from './pages/Cart';
+import Checkout from './pages/Checkout';
 import Wishlist from './pages/Wishlist';
 import Blog from './pages/Blog';
 import BlogDetail from './pages/BlogDetail';
@@ -18,6 +19,7 @@ import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 import Register from './pages/Register';
 import Profile from './pages/Profile';
+import Orders from './pages/Orders';
 import NotFound from './pages/NotFound';
 import AdminDashboard from './pages/AdminDashboard';
 import ProductManagement from './pages/ProductManagement';
@@ -49,6 +51,7 @@ function AppContent() {
       <Route path="/products" element={<Products />} />
       <Route path="/product/:id" element={<ProductDetail />} />
       <Route path="/cart" element={<Cart />} />
+      <Route path="/checkout" element={<Checkout />} />
       <Route path="/wishlist" element={<Wishlist />} />
       <Route path="/blog" element={<Blog />} />
       <Route path="/blog/:slug" element={<BlogDetail />} />
@@ -57,6 +60,7 @@ function AppContent() {
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/register" element={<Register />} />
       <Route path="/profile" element={<Profile />} />
+      <Route path="/orders" element={<Orders />} />
 
       {/* Admin Routes */}
       <Route path="/admin/dashboard" element={<PrivateAdminRoute element={<AdminDashboard />} />} />

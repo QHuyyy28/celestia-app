@@ -28,7 +28,7 @@ export default function Wishlist() {
                 <h1 className="wishlist-header">❤️ Danh sách yêu thích</h1>
 
                 <div className="row g-4">
-                    {wishlist.items.map(item => (
+                    {wishlist.items.filter(item => item && item.product && item.product._id).map(item => (
                         <div key={item.product._id} className="col-md-6 col-lg-4">
                             <div className="card wishlist-card h-100">
                                 <img

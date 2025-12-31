@@ -141,17 +141,24 @@ exports.createProduct = async (req, res) => {
             specifications
         } = req.body;
 
-        const product = await Product.create({
+        // Tạo object data, bỏ qua category nếu rỗng
+        const productData = {
             name,
             description,
             price,
             comparePrice,
-            category,
             stock,
             images,
             featured,
             specifications
-        });
+        };
+
+        // Chỉ thêm category nếu có giá trị
+        if (category && category.trim() !== '') {
+            productData.category = category;
+        }
+
+        const product = await Product.create(productData);
 
         res.status(201).json({
             success: true,

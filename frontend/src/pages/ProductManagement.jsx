@@ -91,10 +91,6 @@ export default function ProductManagement() {
                 setError('❌ Số lượng không được để trống');
                 return;
             }
-            if (!formData.category) {
-                setError('❌ Danh mục không được để trống');
-                return;
-            }
             if (!formData.images || formData.images.length === 0) {
                 setError('❌ Phải có ít nhất 1 ảnh');
                 return;
@@ -291,12 +287,11 @@ export default function ProductManagement() {
 
                             <div className="form-row">
                                 <div className="form-group">
-                                    <label>Danh mục *</label>
+                                    <label>Danh mục</label>
                                     <select
                                         name="category"
                                         value={formData.category}
                                         onChange={handleInputChange}
-                                        required
                                     >
                                         <option value="">-- Chọn danh mục --</option>
                                         {categories.map(cat => (
