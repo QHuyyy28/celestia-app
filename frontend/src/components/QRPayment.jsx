@@ -25,17 +25,30 @@ const QRPayment = ({ paymentInfo, orderId, onPaymentComplete }) => {
         return new Intl.NumberFormat('vi-VN').format(amount) + '₫';
     };
 
-    const handleCheckPayment = async () => {
+    const handleConfirmTransfer = async () => {
         setChecking(true);
         try {
-            // Gọi API kiểm tra trạng thái thanh toán
-            // Trong thực tế, bạn cần implement webhook hoặc polling API
-            setTimeout(() => {
-                alert('Đang kiểm tra thanh toán... Vui lòng chờ giây lát!');
-                setChecking(false);
-            }, 1000);
+            const token = localStorage.getItem('token');
+            const response = await fetch(`http://localhost:5000/api/orders/${orderId}/confirm-transfer`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            const data = await response.json();
+
+            if (response.ok && data.success) {
+                alert('✓ Đã ghi nhận bạn chuyển khoản! Admin sẽ kiểm tra và xác nhận trong 1-2 phút.');
+                onPaymentComplete?.();
+            } else {
+                alert('❌ Lỗi: ' + (data.message || 'Không thể ghi nhận chuyển khoản'));
+            }
         } catch (error) {
-            console.error('Error checking payment:', error);
+            console.error('Error confirming transfer:', error);
+            alert('❌ Lỗi kết nối: ' + error.message);
+        } finally {
             setChecking(false);
         }
     };
@@ -113,16 +126,10 @@ const QRPayment = ({ paymentInfo, orderId, onPaymentComplete }) => {
                     <div className="action-buttons">
                         <button 
                             className="btn-check-payment"
-                            onClick={handleCheckPayment}
+                            onClick={handleConfirmTransfer}
                             disabled={checking || countdown === 0}
                         >
-                            {checking ? 'Đang kiểm tra...' : '🔄 Kiểm tra thanh toán'}
-                        </button>
-                        <button 
-                            className="btn-complete"
-                            onClick={onPaymentComplete}
-                        >
-                            ✓ Đã thanh toán
+                            {checking ? '⏳ Đang xử lý...' : '✓ Đã chuyển khoản'}
                         </button>
                     </div>
 

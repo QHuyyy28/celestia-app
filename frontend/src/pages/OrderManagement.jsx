@@ -12,6 +12,7 @@ export default function OrderManagement() {
     const [page, setPage] = useState(1);
     const [total, setTotal] = useState(0);
     const [selectedOrder, setSelectedOrder] = useState(null);
+    const [statusUpdating, setStatusUpdating] = useState(false);
     const limit = 10;
 
     const fetchOrders = useCallback(async () => {
@@ -43,13 +44,34 @@ export default function OrderManagement() {
     }, [fetchOrders]);
 
     const handleStatusChange = async (orderId, newStatus) => {
+        if (newStatus === selectedOrder.status) return; // Không thay đổi
+        
+        setStatusUpdating(true);
         try {
             await api.put(`/orders/${orderId}/status`, { status: newStatus });
-            alert('Cập nhật trạng thái đơn hàng thành công');
-            fetchOrders();
-            setSelectedOrder(null);
+            // Cập nhật order được chọn để hiển thị trạng thái mới ngay
+            const updatedOrders = orders.map(order => 
+                order._id === orderId ? { ...order, status: newStatus } : order
+            );
+            setOrders(updatedOrders);
+            setSelectedOrder({ ...selectedOrder, status: newStatus });
         } catch (err) {
             alert(err.response?.data?.message || 'Lỗi khi cập nhật');
+        } finally {
+            setStatusUpdating(false);
+        }
+    };
+
+    const handleVerifyPayment = async (orderId) => {
+        try {
+            const response = await api.put(`/orders/${orderId}/verify-payment`);
+            if (response.data.success) {
+                alert('✓ Đã xác nhận thanh toán VietQR!');
+                fetchOrders();
+                setSelectedOrder(null);
+            }
+        } catch (err) {
+            alert(err.response?.data?.message || 'Lỗi khi xác nhận thanh toán');
         }
     };
 
@@ -62,6 +84,26 @@ export default function OrderManagement() {
             cancelled: '#e74c3c'
         };
         return colors[status] || '#95a5a6';
+    };
+
+    const getPaymentStatusColor = (paymentStatus) => {
+        const colors = {
+            pending: '#95a5a6',
+            customer_transferred: '#f39c12',
+            admin_confirmed: '#27ae60',
+            failed: '#e74c3c'
+        };
+        return colors[paymentStatus] || '#95a5a6';
+    };
+
+    const getPaymentStatusLabel = (paymentStatus) => {
+        const labels = {
+            pending: '⏳ Chưa thanh toán',
+            customer_transferred: '🔄 Khách đã chuyển (chờ xác nhận)',
+            admin_confirmed: '✓ Đã xác nhận',
+            failed: '❌ Thất bại'
+        };
+        return labels[paymentStatus] || 'Không xác định';
     };
 
     const pages = Math.ceil(total / limit);
@@ -192,23 +234,64 @@ export default function OrderManagement() {
                                 <p><strong>Địa chỉ:</strong> {selectedOrder.shippingAddress?.address}, {selectedOrder.shippingAddress?.ward}, {selectedOrder.shippingAddress?.district}, {selectedOrder.shippingAddress?.province}</p>
                                 <p><strong>SĐT:</strong> {selectedOrder.shippingAddress?.phone}</p>
                                 <p><strong>Phương thức thanh toán:</strong> {selectedOrder.paymentMethod}</p>
+                                
+                                {/* Payment Status Section */}
+                                <div className="payment-status-section" style={{ backgroundColor: '#f5f5f5', padding: '15px', borderRadius: '8px', marginTop: '15px', marginBottom: '15px' }}>
+                                    <p><strong>Trạng thái thanh toán:</strong> 
+                                        <span style={{ color: getPaymentStatusColor(selectedOrder.paymentStatus), fontWeight: 'bold', marginLeft: '10px' }}>
+                                            {getPaymentStatusLabel(selectedOrder.paymentStatus)}
+                                        </span>
+                                    </p>
+                                    
+                                    {selectedOrder.paymentMethod === 'VietQR' && selectedOrder.paymentStatus === 'customer_transferred' && (
+                                        <button
+                                            className="btn-verify-payment"
+                                            onClick={() => handleVerifyPayment(selectedOrder._id)}
+                                            style={{ 
+                                                backgroundColor: '#27ae60', 
+                                                color: 'white', 
+                                                padding: '10px 20px', 
+                                                border: 'none', 
+                                                borderRadius: '5px', 
+                                                cursor: 'pointer',
+                                                marginTop: '10px',
+                                                fontWeight: 'bold'
+                                            }}
+                                        >
+                                            ✓ Xác nhận thanh toán VietQR
+                                        </button>
+                                    )}
+                                </div>
+
                                 <p><strong>Tổng tiền:</strong> {selectedOrder.totalPrice?.toLocaleString()} đ</p>
-                                <p><strong>Trạng thái hiện tại:</strong> <span style={{color: getStatusColor(selectedOrder.status), fontWeight: 'bold'}}>{selectedOrder.status.toUpperCase()}</span></p>
+                                <p><strong>Trạng thái đơn hàng:</strong> <span style={{color: getStatusColor(selectedOrder.status), fontWeight: 'bold', fontSize: '16px'}}>{selectedOrder.status.toUpperCase()}</span></p>
 
                                 <div className="status-change">
                                     <label>Thay đổi trạng thái:</label>
-                                    <div className="status-buttons">
+                                    <select 
+                                        className="status-select"
+                                        value={selectedOrder.status}
+                                        onChange={(e) => handleStatusChange(selectedOrder._id, e.target.value)}
+                                        disabled={statusUpdating}
+                                        style={{
+                                            padding: '10px 15px',
+                                            borderRadius: '5px',
+                                            border: '1px solid #ccc',
+                                            fontSize: '14px',
+                                            fontWeight: 'bold',
+                                            cursor: statusUpdating ? 'not-allowed' : 'pointer',
+                                            width: '100%',
+                                            marginTop: '10px',
+                                            opacity: statusUpdating ? 0.6 : 1,
+                                            backgroundColor: '#f9f9f9'
+                                        }}
+                                    >
                                         {['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled'].map((s) => (
-                                            <button
-                                                key={s}
-                                                className={`status-btn ${selectedOrder.status === s ? 'active' : ''}`}
-                                                onClick={() => handleStatusChange(selectedOrder._id, s)}
-                                                style={{ backgroundColor: selectedOrder.status === s ? getStatusColor(s) : '#e0e0e0' }}
-                                            >
+                                            <option key={s} value={s}>
                                                 {s.toUpperCase()}
-                                            </button>
+                                            </option>
                                         ))}
-                                    </div>
+                                    </select>
                                 </div>
 
                                 <h3>Sản phẩm:</h3>
@@ -233,12 +316,24 @@ export default function OrderManagement() {
                                     </tbody>
                                 </table>
                             </div>
-                            <button
-                                className="btn btn-secondary"
-                                onClick={() => setSelectedOrder(null)}
-                            >
-                                Đóng
-                            </button>
+                            <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', marginTop: '20px' }}>
+                                <button
+                                    className="btn btn-close"
+                                    onClick={() => setSelectedOrder(null)}
+                                    style={{
+                                        backgroundColor: '#27ae60',
+                                        color: 'white',
+                                        padding: '10px 20px',
+                                        border: 'none',
+                                        borderRadius: '5px',
+                                        cursor: 'pointer',
+                                        fontWeight: 'bold',
+                                        fontSize: '14px'
+                                    }}
+                                >
+                                    ✓ Đóng
+                                </button>
+                            </div>
                         </div>
                     </div>
                 )}

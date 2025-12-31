@@ -241,34 +241,6 @@ export default function Checkout() {
                                         <input
                                             type="radio"
                                             name="paymentMethod"
-                                            value="VNPay"
-                                            checked={paymentMethod === 'VNPay'}
-                                            onChange={(e) => setPaymentMethod(e.target.value)}
-                                        />
-                                        <span className="payment-label">
-                                            <span className="payment-name">VNPay</span>
-                                            <span className="payment-desc">Pay via VNPay e-wallet</span>
-                                        </span>
-                                    </label>
-
-                                    <label className="payment-option">
-                                        <input
-                                            type="radio"
-                                            name="paymentMethod"
-                                            value="Momo"
-                                            checked={paymentMethod === 'Momo'}
-                                            onChange={(e) => setPaymentMethod(e.target.value)}
-                                        />
-                                        <span className="payment-label">
-                                            <span className="payment-name">Momo</span>
-                                            <span className="payment-desc">Pay via Momo e-wallet</span>
-                                        </span>
-                                    </label>
-
-                                    <label className="payment-option">
-                                        <input
-                                            type="radio"
-                                            name="paymentMethod"
                                             value="VietQR"
                                             checked={paymentMethod === 'VietQR'}
                                             onChange={(e) => setPaymentMethod(e.target.value)}

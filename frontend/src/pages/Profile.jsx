@@ -7,7 +7,8 @@ export default function Profile() {
     const [formData, setFormData] = useState({
         name: user?.name || '',
         phone: user?.phone || '',
-        address: user?.address || ''
+        address: user?.address || '',
+        birthday: user?.birthday ? new Date(user.birthday).toISOString().split('T')[0] : ''
     });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -18,7 +19,8 @@ export default function Profile() {
         setFormData({
             name: user?.name || '',
             phone: user?.phone || '',
-            address: user?.address || ''
+            address: user?.address || '',
+            birthday: user?.birthday ? new Date(user.birthday).toISOString().split('T')[0] : ''
         });
     }, [user]);
 
@@ -130,6 +132,20 @@ export default function Profile() {
                             placeholder="Nhập địa chỉ của bạn"
                             rows="4"
                             style={{ resize: 'vertical', minHeight: '100px' }}
+                        />
+                    </div>
+
+                    <div className="form-group">
+                        <label htmlFor="birthday" className="form-label">
+                            Ngày sinh
+                        </label>
+                        <input
+                            type="date"
+                            className="form-input"
+                            id="birthday"
+                            name="birthday"
+                            value={formData.birthday}
+                            onChange={handleChange}
                         />
                     </div>
 
