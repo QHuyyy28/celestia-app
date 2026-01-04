@@ -7,7 +7,7 @@ export default function ForgotPassword() {
     const [email, setEmail] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    const [success, setSuccess] = useState(false);
+    const [success] = useState(false);
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
@@ -15,16 +15,13 @@ export default function ForgotPassword() {
         try {
             setLoading(true);
             setError(null);
-            await authService.forgotPassword(email);
-            setSuccess(true);
-            setEmail('');
-            // Redirect sau 3 giây
-            setTimeout(() => {
-                navigate('/login');
-            }, 3000);
+            const response = await authService.forgotPassword(email);
+            // Redirect trực tiếp với token
+            if (response.data.token) {
+                navigate(`/reset-password?token=${response.data.token}`);
+            }
         } catch (err) {
-            setError(err.response?.data?.message || 'Failed to send reset email. Please try again.');
-        } finally {
+            setError(err.response?.data?.message || 'Không thể xác thực email. Vui lòng thử lại.');
             setLoading(false);
         }
     };
@@ -88,7 +85,7 @@ export default function ForgotPassword() {
                         disabled={loading}
                     >
                         {loading && <span className="loading-spinner"></span>}
-                        {loading ? 'Sending...' : 'Send Reset Link'}
+                        {loading ? 'Sending...' : 'Change New Password'}
                     </button>
                 </form>
 
