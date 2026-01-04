@@ -8,7 +8,8 @@ const {
     verifyEmail,
     forgotPassword,
     resetPassword,
-    logout
+    logout,
+    testBirthdayEmail
 } = require('../controllers/authController');
 const { protect } = require('../middlewares/auth');
 const {
@@ -27,6 +28,7 @@ router.post('/login', validateLogin, handleValidationErrors, login);
 router.post('/verify-email', verifyEmail);
 router.post('/forgot-password', forgotPassword);
 router.post('/reset-password', resetPassword);
+router.post('/test-birthday', testBirthdayEmail); // Test birthday email
 
 // Protected routes (phải đăng nhập)
 router.get('/me', protect, getMe);

@@ -2,6 +2,7 @@ const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const { sendVerificationEmail, sendResetPasswordEmail } = require('../services/emailService');
+const { sendBirthdayGreetings } = require('../services/birthdayService');
 
 // Tạo JWT Token
 const generateToken = (id) => {
@@ -173,7 +174,7 @@ exports.getMe = async (req, res) => {
 // @access  Private
 exports.updateProfile = async (req, res) => {
     try {
-        const { name, phone, address } = req.body;
+        const { name, phone, address, birthday } = req.body;
 
         const user = await User.findById(req.user._id);
 
@@ -188,6 +189,7 @@ exports.updateProfile = async (req, res) => {
         if (name) user.name = name;
         if (phone !== undefined && phone !== '') user.phone = phone;
         if (address !== undefined && address !== '') user.address = address;
+        if (birthday !== undefined && birthday !== '') user.birthday = birthday;
 
         await user.save();
 
@@ -198,6 +200,7 @@ exports.updateProfile = async (req, res) => {
             name: user.name,
             phone: user.phone,
             address: user.address,
+            birthday: user.birthday,
             role: user.role,
             isEmailVerified: user.isEmailVerified,
             isSubscribedToNotifications: user.isSubscribedToNotifications,
@@ -331,7 +334,6 @@ exports.verifyEmail = async (req, res) => {
 
 exports.forgotPassword = async (req, res) => {
     try {
-        // ✅ FIX QUAN TRỌNG
         if (!req.body || !req.body.email) {
             return res.status(400).json({
                 success: false,
@@ -344,11 +346,10 @@ exports.forgotPassword = async (req, res) => {
         // Tìm user
         const user = await User.findOne({ email });
 
-        // ⚠️ Không tiết lộ email có tồn tại hay không
         if (!user) {
-            return res.status(200).json({
-                success: true,
-                message: 'Nếu email tồn tại, chúng tôi sẽ gửi link reset mật khẩu'
+            return res.status(404).json({
+                success: false,
+                message: 'Email không tồn tại trong hệ thống'
             });
         }
 
@@ -363,26 +364,11 @@ exports.forgotPassword = async (req, res) => {
         user.resetPasswordExpires = Date.now() + 60 * 60 * 1000; // 1 giờ
         await user.save({ validateBeforeSave: false });
 
-        // Gửi email
-        try {
-            await sendResetPasswordEmail(user, resetToken);
-        } catch (emailError) {
-            console.error('EMAIL ERROR:', emailError);
-
-            user.resetPasswordToken = undefined;
-            user.resetPasswordExpires = undefined;
-            await user.save();
-
-            return res.status(500).json({
-                success: false,
-                message: 'Không thể gửi email reset mật khẩu',
-                error: emailError.message
-            });
-        }
-
+        // Trả về token luôn để redirect (không gửi email)
         return res.status(200).json({
             success: true,
-            message: 'Chúng tôi đã gửi link reset mật khẩu đến email của bạn'
+            message: 'Xác thực thành công',
+            token: resetToken
         });
     } catch (error) {
         console.error('Forgot password error:', error);
@@ -499,6 +485,27 @@ exports.changePassword = async (req, res) => {
         res.status(500).json({
             success: false,
             message: 'Lỗi server',
+            error: error.message
+        });
+    }
+};
+// @desc    Test gui email sinh nhat ngay (for testing)
+// @route   POST /api/auth/test-birthday
+// @access  Public
+exports.testBirthdayEmail = async (req, res) => {
+    try {
+        console.log('Manual birthday email test triggered...');
+        await sendBirthdayGreetings();
+        
+        res.status(200).json({
+            success: true,
+            message: 'Da gui email sinh nhat cho tat ca users co sinh nhat hom nay'
+        });
+    } catch (error) {
+        console.error('Test birthday email error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Loi khi gui email sinh nhat',
             error: error.message
         });
     }

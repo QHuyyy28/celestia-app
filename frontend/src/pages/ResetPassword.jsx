@@ -25,12 +25,12 @@ export default function ResetPassword() {
         e.preventDefault();
         
         if (newPassword !== confirmPassword) {
-            setError('Passwords do not match');
+            setError('Mật khẩu xác nhận không khớp');
             return;
         }
 
         if (newPassword.length < 6) {
-            setError('Password must be at least 6 characters long');
+            setError('Mật khẩu phải có ít nhất 6 ký tự');
             return;
         }
 
@@ -44,7 +44,7 @@ export default function ResetPassword() {
                 navigate('/login');
             }, 2000);
         } catch (err) {
-            setError(err.response?.data?.message || 'Failed to reset password. Link may have expired.');
+            setError(err.response?.data?.message || 'Không thể đặt lại mật khẩu. Link có thể đã hết hạn.');
         } finally {
             setLoading(false);
         }
