@@ -20,7 +20,8 @@ exports.createOrder = async (req, res) => {
             paymentMethod,
             itemsPrice,
             shippingPrice,
-            totalPrice
+            totalPrice,
+            qrContent
         } = req.body;
 
         // Kiểm tra giỏ hàng có sản phẩm không
@@ -51,7 +52,7 @@ exports.createOrder = async (req, res) => {
         }
 
         // Tạo đơn hàng
-        const order = await Order.create({
+        const orderData = {
             user: req.user._id,
             orderItems,
             shippingAddress,
@@ -59,7 +60,14 @@ exports.createOrder = async (req, res) => {
             itemsPrice,
             shippingPrice,
             totalPrice
-        });
+        };
+        
+        // Thêm qrContent nếu có
+        if (qrContent && qrContent.content) {
+            orderData.qrContent = qrContent;
+        }
+        
+        const order = await Order.create(orderData);
 
         // Trừ số lượng tồn kho
         for (let item of orderItems) {

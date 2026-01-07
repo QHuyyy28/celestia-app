@@ -90,6 +90,25 @@ const orderSchema = new mongoose.Schema({
   },
   deliveredAt: {
     type: Date
+  },
+  qrContent: {
+    type: {
+      type: String,
+      enum: ['text', 'url', 'image'],
+      default: 'text'
+    },
+    content: {
+      type: String,
+      default: ''
+    },
+    description: {
+      type: String,
+      default: ''
+    }
+  },
+  qrCodeGenerated: {
+    type: Boolean,
+    default: false
   }
 }, {
   timestamps: true

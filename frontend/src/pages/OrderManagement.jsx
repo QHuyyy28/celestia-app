@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { AdminLayout } from '../components/AdminLayout';
 import api from '../services/api';
+import QRCode from 'qrcode';
 import './OrderManagement.css';
 
 export default function OrderManagement() {
@@ -13,6 +14,8 @@ export default function OrderManagement() {
     const [total, setTotal] = useState(0);
     const [selectedOrder, setSelectedOrder] = useState(null);
     const [statusUpdating, setStatusUpdating] = useState(false);
+    const [qrCodeUrl, setQrCodeUrl] = useState(null);
+    const [generatingQR, setGeneratingQR] = useState(false);
     const limit = 10;
 
     const fetchOrders = useCallback(async () => {
@@ -73,6 +76,63 @@ export default function OrderManagement() {
         } catch (err) {
             alert(err.response?.data?.message || 'Lỗi khi xác nhận thanh toán');
         }
+    };
+
+    const handleGenerateQR = async () => {
+        if (!selectedOrder?.qrContent?.content) {
+            alert('Không có nội dung QR để tạo!');
+            return;
+        }
+
+        setGeneratingQR(true);
+        try {
+            let qrContent = selectedOrder.qrContent.content;
+            
+            // Nếu là file upload, chuyển thành URL đầy đủ
+            if (selectedOrder.qrContent.type === 'video' || selectedOrder.qrContent.type === 'image') {
+                // Nếu content là đường dẫn file (bắt đầu bằng /uploads/)
+                if (qrContent.startsWith('/uploads/')) {
+                    qrContent = `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}${qrContent}`;
+                }
+            }
+            
+            const qrDataUrl = await QRCode.toDataURL(qrContent, {
+                width: 400,
+                margin: 2,
+                color: {
+                    dark: '#000000',
+                    light: '#FFFFFF'
+                }
+            });
+            
+            setQrCodeUrl(qrDataUrl);
+            
+            // Cập nhật trạng thái đã tạo QR trong database
+            await api.put(`/orders/${selectedOrder._id}`, {
+                qrCodeGenerated: true
+            });
+            
+            alert('✓ QR Code đã được tạo thành công!');
+        } catch (err) {
+            console.error('Error generating QR:', err);
+            alert('Lỗi khi tạo QR code: ' + err.message);
+        } finally {
+            setGeneratingQR(false);
+        }
+    };
+
+    const handleDownloadQR = () => {
+        if (!qrCodeUrl) return;
+        
+        const link = document.createElement('a');
+        link.href = qrCodeUrl;
+        link.download = `QR_Order_${selectedOrder._id}.png`;
+        link.click();
+    };
+
+    const closeModal = () => {
+        setSelectedOrder(null);
+        setQrCodeUrl(null);
     };
 
     const getStatusColor = (status) => {
@@ -315,11 +375,162 @@ export default function OrderManagement() {
                                         ))}
                                     </tbody>
                                 </table>
+
+                                {/* QR Content Section */}
+                                {selectedOrder.qrContent && selectedOrder.qrContent.content && (
+                                    <div className="qr-content-section" style={{ 
+                                        backgroundColor: '#f0f8ff', 
+                                        padding: '20px', 
+                                        borderRadius: '10px', 
+                                        marginTop: '20px',
+                                        border: '2px solid #3498db'
+                                    }}>
+                                        <h3 style={{ color: '#2c3e50', marginBottom: '15px' }}>
+                                            📱 Nội dung QR từ khách hàng
+                                        </h3>
+                                        
+                                        <div style={{ marginBottom: '15px' }}>
+                                            <p><strong>Loại:</strong> {
+                                                selectedOrder.qrContent.type === 'text' ? '📝 Văn bản' :
+                                                selectedOrder.qrContent.type === 'url' ? '🔗 Link' :
+                                                selectedOrder.qrContent.type === 'video' ? '🎬 Video' :
+                                                '🖼️ Hình ảnh'
+                                            }</p>
+                                            
+                                            {/* Hiển thị preview nếu là file */}
+                                            {(selectedOrder.qrContent.type === 'video' || selectedOrder.qrContent.type === 'image') && (
+                                                <div style={{ marginTop: '10px', marginBottom: '10px' }}>
+                                                    <strong>Preview:</strong><br/>
+                                                    {selectedOrder.qrContent.type === 'video' ? (
+                                                        <video 
+                                                            controls 
+                                                            style={{ maxWidth: '100%', maxHeight: '300px', marginTop: '10px', borderRadius: '5px' }}
+                                                            src={`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}${selectedOrder.qrContent.content}`}
+                                                        />
+                                                    ) : (
+                                                        <img 
+                                                            src={`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}${selectedOrder.qrContent.content}`}
+                                                            alt="Uploaded content"
+                                                            style={{ maxWidth: '100%', maxHeight: '300px', marginTop: '10px', borderRadius: '5px' }}
+                                                        />
+                                                    )}
+                                                </div>
+                                            )}
+                                            
+                                            <p style={{ marginTop: '10px' }}>
+                                                <strong>Nội dung QR sẽ chứa:</strong><br/>
+                                                <textarea 
+                                                    readOnly 
+                                                    value={
+                                                        selectedOrder.qrContent.content.startsWith('/uploads/') 
+                                                            ? `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}${selectedOrder.qrContent.content}`
+                                                            : selectedOrder.qrContent.content
+                                                    }
+                                                    style={{
+                                                        width: '100%',
+                                                        minHeight: '80px',
+                                                        padding: '10px',
+                                                        borderRadius: '5px',
+                                                        border: '1px solid #ccc',
+                                                        fontSize: '14px',
+                                                        marginTop: '5px',
+                                                        resize: 'vertical'
+                                                    }}
+                                                />
+                                            </p>
+                                            {selectedOrder.qrContent.description && (
+                                                <p style={{ marginTop: '10px' }}>
+                                                    <strong>Mô tả:</strong> {selectedOrder.qrContent.description}
+                                                </p>
+                                            )}
+                                            
+                                            <p style={{ 
+                                                marginTop: '10px', 
+                                                padding: '10px', 
+                                                backgroundColor: '#fff3cd', 
+                                                borderRadius: '5px',
+                                                fontSize: '13px',
+                                                color: '#856404'
+                                            }}>
+                                                ℹ️ <strong>Lưu ý:</strong> QR Code sẽ chứa <strong>link đến file</strong> đã upload, không phải file gốc.
+                                            </p>
+                                        </div>
+
+                                        {!qrCodeUrl ? (
+                                            <button
+                                                onClick={handleGenerateQR}
+                                                disabled={generatingQR}
+                                                style={{
+                                                    backgroundColor: generatingQR ? '#95a5a6' : '#3498db',
+                                                    color: 'white',
+                                                    padding: '12px 24px',
+                                                    border: 'none',
+                                                    borderRadius: '5px',
+                                                    cursor: generatingQR ? 'not-allowed' : 'pointer',
+                                                    fontWeight: 'bold',
+                                                    fontSize: '15px',
+                                                    width: '100%'
+                                                }}
+                                            >
+                                                {generatingQR ? '⏳ Đang tạo QR...' : '🎨 Tạo QR Code'}
+                                            </button>
+                                        ) : (
+                                            <div style={{ textAlign: 'center' }}>
+                                                <div style={{ 
+                                                    backgroundColor: 'white', 
+                                                    padding: '20px', 
+                                                    borderRadius: '10px',
+                                                    display: 'inline-block',
+                                                    boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
+                                                }}>
+                                                    <img 
+                                                        src={qrCodeUrl} 
+                                                        alt="Generated QR Code" 
+                                                        style={{ 
+                                                            maxWidth: '300px',
+                                                            display: 'block'
+                                                        }}
+                                                    />
+                                                </div>
+                                                <div style={{ marginTop: '15px', display: 'flex', gap: '10px', justifyContent: 'center' }}>
+                                                    <button
+                                                        onClick={handleDownloadQR}
+                                                        style={{
+                                                            backgroundColor: '#27ae60',
+                                                            color: 'white',
+                                                            padding: '10px 20px',
+                                                            border: 'none',
+                                                            borderRadius: '5px',
+                                                            cursor: 'pointer',
+                                                            fontWeight: 'bold'
+                                                        }}
+                                                    >
+                                                        💾 Tải xuống QR
+                                                    </button>
+                                                    <button
+                                                        onClick={() => setQrCodeUrl(null)}
+                                                        style={{
+                                                            backgroundColor: '#e74c3c',
+                                                            color: 'white',
+                                                            padding: '10px 20px',
+                                                            border: 'none',
+                                                            borderRadius: '5px',
+                                                            cursor: 'pointer',
+                                                            fontWeight: 'bold'
+                                                        }}
+                                                    >
+                                                        🔄 Tạo lại
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
                             </div>
                             <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', marginTop: '20px' }}>
                                 <button
                                     className="btn btn-close"
-                                    onClick={() => setSelectedOrder(null)}
+                                    onClick={closeModal}
                                     style={{
                                         backgroundColor: '#27ae60',
                                         color: 'white',
