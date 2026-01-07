@@ -24,6 +24,14 @@ export default function Checkout() {
     });
 
     const [paymentMethod, setPaymentMethod] = useState('COD');
+    const [qrContent, setQrContent] = useState({
+        type: 'text',
+        content: '',
+        description: '',
+        isFile: false
+    });
+    const [showQRForm, setShowQRForm] = useState(false);
+    const [uploadingFile, setUploadingFile] = useState(false);
 
     useEffect(() => {
         if (!cart || !cart.items || cart.items.length === 0) {
@@ -36,6 +44,50 @@ export default function Checkout() {
             ...shippingInfo,
             [e.target.name]: e.target.value
         });
+    };
+
+    const handleFileUpload = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        if (file.size > 100 * 1024 * 1024) {
+            alert('File quá lớn! Tối đa 100MB');
+            return;
+        }
+
+        setUploadingFile(true);
+        try {
+            const formData = new FormData();
+            formData.append('file', file);
+
+            const token = localStorage.getItem('token');
+            const response = await fetch('http://localhost:5000/api/upload/qr-content', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                },
+                body: formData
+            });
+
+            const data = await response.json();
+            
+            if (response.ok && data.success) {
+                // Lưu đường dẫn relative, không phải full URL
+                setQrContent({
+                    ...qrContent,
+                    content: data.data.url, // Đã là "/uploads/qr-content/xxx"
+                    isFile: true
+                });
+                alert('✓ Upload thành công!');
+            } else {
+                alert(data.message || 'Lỗi khi upload file');
+            }
+        } catch (error) {
+            console.error('Upload error:', error);
+            alert('Không thể upload file: ' + error.message);
+        } finally {
+            setUploadingFile(false);
+        }
     };
 
     const handleSubmitOrder = async (e) => {
@@ -68,6 +120,11 @@ export default function Checkout() {
                 shippingPrice: 0, // Free shipping
                 totalPrice: cart.totalPrice
             };
+
+            // Thêm qrContent nếu có
+            if (qrContent.content.trim()) {
+                orderData.qrContent = qrContent;
+            }
 
             const response = await fetch('http://localhost:5000/api/orders', {
                 method: 'POST',
@@ -251,6 +308,98 @@ export default function Checkout() {
                                         </span>
                                     </label>
                                 </div>
+                            </div>
+
+                            {/* QR Content Section */}
+                            <div className="qr-content-section">
+                                <button 
+                                    type="button"
+                                    className="toggle-qr-form-btn"
+                                    onClick={() => setShowQRForm(!showQRForm)}
+                                >
+                                    {showQRForm ? '❌ Đóng' : '📝 Gửi nội dung QR cho Admin'}
+                                </button>
+                                
+                                {showQRForm && (
+                                    <div className="qr-content-form">
+                                        <h3>Nội dung QR Code</h3>
+                                        <p className="qr-hint">Admin sẽ tạo QR code cho bạn dựa trên nội dung này</p>
+                                        
+                                        <div className="form-group">
+                                            <label>Loại nội dung *</label>
+                                            <select
+                                                value={qrContent.type}
+                                                onChange={(e) => setQrContent({...qrContent, type: e.target.value, content: '', isFile: false})}
+                                                className="qr-type-select"
+                                            >
+                                                <option value="text">📝 Văn bản</option>
+                                                <option value="url">🔗 Link (Website, YouTube, Nhạc, Video)</option>
+                                                <option value="image">🖼️ Link hình ảnh</option>
+                                                <option value="file-video">🎬 Upload Video từ máy</option>
+                                                <option value="file-audio">🎵 Upload Nhạc từ máy</option>
+                                                <option value="file-image">📸 Upload Hình ảnh từ máy</option>
+                                            </select>
+                                        </div>
+                                        
+                                        {/* Hiển thị input phù hợp */}
+                                        {qrContent.type.startsWith('file-') ? (
+                                            <div className="form-group">
+                                                <label>Chọn file *</label>
+                                                <input
+                                                    type="file"
+                                                    onChange={handleFileUpload}
+                                                    accept={
+                                                        qrContent.type === 'file-video' ? 'video/*' :
+                                                        qrContent.type === 'file-audio' ? 'audio/*' :
+                                                        'image/*'
+                                                    }
+                                                    disabled={uploadingFile}
+                                                    className="qr-file-input"
+                                                />
+                                                {uploadingFile && (
+                                                    <p style={{ color: '#3498db', marginTop: '10px' }}>
+                                                        ⏳ Đang upload...
+                                                    </p>
+                                                )}
+                                                {qrContent.isFile && qrContent.content && (
+                                                    <p style={{ color: '#27ae60', marginTop: '10px' }}>
+                                                        ✓ File đã upload thành công
+                                                    </p>
+                                                )}
+                                            </div>
+                                        ) : (
+                                            <div className="form-group">
+                                                <label>Nội dung * {qrContent.type === 'url' || qrContent.type === 'image' ? '(Link)' : ''}</label>
+                                                <textarea
+                                                    value={qrContent.content}
+                                                    onChange={(e) => setQrContent({...qrContent, content: e.target.value})}
+                                                    placeholder={
+                                                        qrContent.type === 'text' ? 'Nhập văn bản...' :
+                                                        qrContent.type === 'url' ? 'https://example.com hoặc link YouTube, Spotify...' :
+                                                        'https://example.com/image.jpg'
+                                                    }
+                                                    rows="4"
+                                                    className="qr-content-input"
+                                                />
+                                            </div>
+                                        )}
+                                        
+                                        <div className="form-group">
+                                            <label>Mô tả (tùy chọn)</label>
+                                            <input
+                                                type="text"
+                                                value={qrContent.description}
+                                                onChange={(e) => setQrContent({...qrContent, description: e.target.value})}
+                                                placeholder="Mô tả về nội dung QR..."
+                                                className="qr-description-input"
+                                            />
+                                        </div>
+                                        
+                                        <div className="qr-form-note">
+                                            ℹ️ Nội dung QR sẽ được gửi cùng đơn hàng. Admin sẽ tạo QR code và gửi lại cho bạn.
+                                        </div>
+                                    </div>
+                                )}
                             </div>
 
                             <button 

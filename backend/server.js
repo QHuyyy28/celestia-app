@@ -13,6 +13,7 @@ const cartRoutes = require('./routes/cartRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
 const wishlistRoutes = require('./routes/wishlistRoutes');
 const saleRoutes = require('./routes/saleRoutes');
+const uploadRoutes = require('./routes/uploadRoutes');
 
 // Load biến môi trường từ file .env
 dotenv.config();
@@ -34,6 +35,9 @@ app.use(cors(corsOptions)); // Cho phép Frontend gọi API
 app.use(express.json()); // Cho phép nhận dữ liệu JSON
 app.use(express.urlencoded({ extended: true }));
 
+// Serve static files (uploaded files)
+app.use('/uploads', express.static('uploads'));
+
 // Route test đơn giản
 app.get('/', (req, res) => {
   res.json({ message: 'Server is running!' });
@@ -50,6 +54,7 @@ app.use('/api/cart', cartRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/wishlist', wishlistRoutes);
 app.use('/api/sales', saleRoutes);
+app.use('/api/upload', uploadRoutes);
 
 // Lấy PORT từ .env hoặc dùng 5000 mặc định
 const PORT = process.env.PORT || 5000;

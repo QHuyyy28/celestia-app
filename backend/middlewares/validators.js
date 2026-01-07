@@ -268,10 +268,10 @@ exports.validateCreateOrder = [
         .isLength({ min: 2, max: 100 }).withMessage('Họ tên phải từ 2-100 ký tự'),
     body('shippingAddress.phone')
         .notEmpty().withMessage('Số điện thoại không được để trống')
-        .matches(/^[0-9]{10,11}$/).withMessage('Số điện thoại phải có 10-11 số'),
+        .matches(/^[0-9]{9,12}$/).withMessage('Số điện thoại phải có 9-12 số'),
     body('shippingAddress.address')
         .notEmpty().withMessage('Địa chỉ không được để trống')
-        .isLength({ min: 10, max: 200 }).withMessage('Địa chỉ phải từ 10-200 ký tự'),
+        .isLength({ min: 5, max: 500 }).withMessage('Địa chỉ phải từ 5-500 ký tự'),
     body('shippingAddress.district')
         .notEmpty().withMessage('Quận/Huyện không được để trống'),
     body('shippingAddress.province')
