@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { AdminLayout } from '../components/AdminLayout';
 import { productService } from '../services/productService';
+import api from '../services/api';
 import './ProductManagement.css';
 
 export default function ProductManagement() {
@@ -48,8 +49,8 @@ export default function ProductManagement() {
 
     async function fetchCategories() {
         try {
-            const response = await fetch('http://localhost:5000/api/categories');
-            const data = await response.json();
+            const response = await api.get('/categories');
+            const data = response.data;
             if (data.success) {
                 setCategories(data.data || []);
             }

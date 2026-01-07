@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useCart } from '../hooks/useCart';
 import { useAuth } from '../hooks/useAuth';
 import QRPayment from '../components/QRPayment';
+import api from '../services/api';
 import './Checkout.css';
 
 export default function Checkout() {
@@ -60,18 +61,15 @@ export default function Checkout() {
             const formData = new FormData();
             formData.append('file', file);
 
-            const token = localStorage.getItem('token');
-            const response = await fetch('http://localhost:5000/api/upload/qr-content', {
-                method: 'POST',
+            const response = await api.post('/upload/qr-content', formData, {
                 headers: {
-                    'Authorization': `Bearer ${token}`
-                },
-                body: formData
+                    'Content-Type': 'multipart/form-data'
+                }
             });
 
-            const data = await response.json();
+            const data = response.data;
             
-            if (response.ok && data.success) {
+            if (data.success) {
                 // Lưu đường dẫn relative, không phải full URL
                 setQrContent({
                     ...qrContent,
@@ -103,8 +101,6 @@ export default function Checkout() {
         setLoading(true);
 
         try {
-            const token = localStorage.getItem('token');
-            
             // Prepare order data
             const orderData = {
                 orderItems: cart.items.filter(item => item && item.product && item.product._id).map(item => ({
@@ -126,20 +122,11 @@ export default function Checkout() {
                 orderData.qrContent = qrContent;
             }
 
-            const response = await fetch('http://localhost:5000/api/orders', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify(orderData)
-            });
-
-            console.log('Response status:', response.status);
-            const data = await response.json();
+            const response = await api.post('/orders', orderData);
+            const data = response.data;
             console.log('Response data:', data);
 
-            if (response.ok && data.success) {
+            if (data.success) {
                 // Nếu thanh toán VietQR, hiển thị màn hình QR
                 if (paymentMethod === 'VietQR' && data.paymentInfo) {
                     console.log('Showing QR payment with info:', data.paymentInfo);

@@ -25,11 +25,26 @@ connectDB();
 const app = express();
 
 // Middleware
-// Cấu hình CORS cho production
+// Cấu hình CORS cho development và production
 const corsOptions = {
-  origin: process.env.FRONTEND_URL || '*',
+  origin: function (origin, callback) {
+    const allowedOrigins = [
+      process.env.FRONTEND_URL || 'http://localhost:3000',
+      'http://localhost:3000',
+      'http://127.0.0.1:3000'
+    ];
+    
+    // Cho phép request không có origin (mobile apps, Postman, etc)
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
-  optionsSuccessStatus: 200
+  optionsSuccessStatus: 200,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 };
 app.use(cors(corsOptions)); // Cho phép Frontend gọi API
 app.use(express.json()); // Cho phép nhận dữ liệu JSON

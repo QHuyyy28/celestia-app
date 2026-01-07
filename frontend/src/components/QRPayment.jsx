@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import api from '../services/api';
 import './QRPayment.css';
 
 const QRPayment = ({ paymentInfo, orderId, onPaymentComplete }) => {
@@ -28,18 +29,10 @@ const QRPayment = ({ paymentInfo, orderId, onPaymentComplete }) => {
     const handleConfirmTransfer = async () => {
         setChecking(true);
         try {
-            const token = localStorage.getItem('token');
-            const response = await fetch(`http://localhost:5000/api/orders/${orderId}/confirm-transfer`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                }
-            });
+            const response = await api.put(`/orders/${orderId}/confirm-transfer`);
+            const data = response.data;
 
-            const data = await response.json();
-
-            if (response.ok && data.success) {
+            if (data.success) {
                 alert('✓ Đã ghi nhận bạn chuyển khoản! Admin sẽ kiểm tra và xác nhận trong 1-2 phút.');
                 onPaymentComplete?.();
             } else {
