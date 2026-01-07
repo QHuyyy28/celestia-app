@@ -88,29 +88,50 @@ export default function OrderManagement() {
         try {
             let qrContent = selectedOrder.qrContent.content;
             
-            // Nếu là file upload, chuyển thành URL đầy đủ
+            // Nếu là file upload, tạo QR từ URL file hoặc tên file
             if (selectedOrder.qrContent.type === 'video' || selectedOrder.qrContent.type === 'image') {
-                // Nếu content là đường dẫn file (bắt đầu bằng /uploads/)
+                // QR sẽ chứa URL của file (không phải content của file)
                 if (qrContent.startsWith('/uploads/')) {
                     qrContent = `${getBackendUrl()}${qrContent}`;
                 }
             }
             
-            const qrDataUrl = await QRCode.toDataURL(qrContent, {
-                width: 400,
-                margin: 2,
-                color: {
-                    dark: '#000000',
-                    light: '#FFFFFF'
-                }
-            });
+            // Generate QR code with error handling
+            let qrDataUrl;
+            try {
+                qrDataUrl = await QRCode.toDataURL(qrContent, {
+                    width: 400,
+                    margin: 2,
+                    color: {
+                        dark: '#000000',
+                        light: '#FFFFFF'
+                    }
+                });
+            } catch (qrError) {
+                console.warn('QR generation error:', qrError);
+                // Fallback: tạo QR từ text thay vì URL
+                qrDataUrl = await QRCode.toDataURL(`QR Content: ${selectedOrder.qrContent.content}`, {
+                    width: 400,
+                    margin: 2,
+                    color: {
+                        dark: '#000000',
+                        light: '#FFFFFF'
+                    }
+                });
+                alert('⚠️ Tạo QR thành công (từ text thay vì file)');
+            }
             
             setQrCodeUrl(qrDataUrl);
             
             // Cập nhật trạng thái đã tạo QR trong database
-            await api.put(`/orders/${selectedOrder._id}`, {
-                qrCodeGenerated: true
-            });
+            try {
+                await api.put(`/orders/${selectedOrder._id}`, {
+                    qrCodeGenerated: true
+                });
+            } catch (updateError) {
+                console.warn('Failed to update QR status:', updateError);
+                // Vẫn hiển thị QR code dù không update được database
+            }
             
             alert('✓ QR Code đã được tạo thành công!');
         } catch (err) {
