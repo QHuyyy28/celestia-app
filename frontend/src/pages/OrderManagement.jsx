@@ -67,6 +67,7 @@ export default function OrderManagement() {
 
     const handleVerifyPayment = async (orderId) => {
         try {
+            // Verify endpoint: PUT /orders/:id/verify-payment (admin required)
             const response = await api.put(`/orders/${orderId}/verify-payment`);
             if (response.data.success) {
                 alert('✓ Đã xác nhận thanh toán VietQR!');
@@ -74,6 +75,7 @@ export default function OrderManagement() {
                 setSelectedOrder(null);
             }
         } catch (err) {
+            console.error('Verify payment error:', err);
             alert(err.response?.data?.message || 'Lỗi khi xác nhận thanh toán');
         }
     };
