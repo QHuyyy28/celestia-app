@@ -61,11 +61,7 @@ export default function Checkout() {
             const formData = new FormData();
             formData.append('file', file);
 
-            const response = await api.post('/upload/qr-content', formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data'
-                }
-            });
+            const response = await api.post('/upload/qr-content', formData);
 
             const data = response.data;
             
