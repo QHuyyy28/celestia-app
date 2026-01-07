@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { AdminLayout } from '../components/AdminLayout';
-import api from '../services/api';
+import api, { getBackendUrl } from '../services/api';
 import QRCode from 'qrcode';
 import './OrderManagement.css';
 
@@ -92,7 +92,7 @@ export default function OrderManagement() {
             if (selectedOrder.qrContent.type === 'video' || selectedOrder.qrContent.type === 'image') {
                 // Nếu content là đường dẫn file (bắt đầu bằng /uploads/)
                 if (qrContent.startsWith('/uploads/')) {
-                    qrContent = `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}${qrContent}`;
+                    qrContent = `${getBackendUrl()}${qrContent}`;
                 }
             }
             
@@ -405,11 +405,13 @@ export default function OrderManagement() {
                                                         <video 
                                                             controls 
                                                             style={{ maxWidth: '100%', maxHeight: '300px', marginTop: '10px', borderRadius: '5px' }}
-                                                            src={`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}${selectedOrder.qrContent.content}`}
+                                                            src={`${getBackendUrl()}${selectedOrder.qrContent.content}`}
+                                                            onError={(e) => console.error('Video load error:', e)}
                                                         />
                                                     ) : (
                                                         <img 
-                                                            src={`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}${selectedOrder.qrContent.content}`}
+                                                            src={`${getBackendUrl()}${selectedOrder.qrContent.content}`}
+                                                            onError={(e) => console.error('Image load error:', e)}
                                                             alt="Uploaded content"
                                                             style={{ maxWidth: '100%', maxHeight: '300px', marginTop: '10px', borderRadius: '5px' }}
                                                         />
@@ -423,7 +425,7 @@ export default function OrderManagement() {
                                                     readOnly 
                                                     value={
                                                         selectedOrder.qrContent.content.startsWith('/uploads/') 
-                                                            ? `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}${selectedOrder.qrContent.content}`
+                                                            ? `${getBackendUrl()}${selectedOrder.qrContent.content}`
                                                             : selectedOrder.qrContent.content
                                                     }
                                                     style={{
