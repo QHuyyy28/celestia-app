@@ -123,15 +123,8 @@ export default function OrderManagement() {
             
             setQrCodeUrl(qrDataUrl);
             
-            // Cập nhật trạng thái đã tạo QR trong database
-            try {
-                await api.put(`/orders/${selectedOrder._id}`, {
-                    qrCodeGenerated: true
-                });
-            } catch (updateError) {
-                console.warn('Failed to update QR status:', updateError);
-                // Vẫn hiển thị QR code dù không update được database
-            }
+            // QR code created successfully - no need to update database
+            // (QR code is generated on-the-fly, not stored in DB)
             
             alert('✓ QR Code đã được tạo thành công!');
         } catch (err) {
