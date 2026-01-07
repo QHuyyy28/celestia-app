@@ -11,6 +11,8 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, '/api')
       }
-    }
+    },
+    middlewareMode: false,
+    historyApiFallback: true
   }
 })
