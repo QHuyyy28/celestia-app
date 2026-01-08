@@ -78,21 +78,19 @@ function AppContent() {
 
 function App() {
   return (
-    <Router>
-      <AuthProvider>
-        <CartProvider>
-          <WishlistProvider>
-            <div className="app-container">
-              <Navbar />
-              <main className="main-content">
-                <AppContent />
-              </main>
-              <Footer />
-            </div>
-          </WishlistProvider>
-        </CartProvider>
-      </AuthProvider>
-    </Router>
+    <AuthProvider>
+      <CartProvider>
+        <WishlistProvider>
+          <div className="app-container">
+            <Navbar />
+            <main className="main-content">
+              <AppContent />
+            </main>
+            <Footer />
+          </div>
+        </WishlistProvider>
+      </CartProvider>
+    </AuthProvider>
   );
 }
 

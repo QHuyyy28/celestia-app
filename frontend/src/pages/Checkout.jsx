@@ -66,10 +66,15 @@ export default function Checkout() {
             const data = response.data;
             
             if (data.success) {
-                // Lưu đường dẫn relative, không phải full URL
+                // Lưu backend URL với hostname thực (không phải localhost, để điện thoại có thể truy cập)
+                // Nếu truy cập từ localhost, dùng IP; nếu từ IP/domain, dùng hostname đó
+                const hostname = window.location.hostname === 'localhost' ? '127.0.0.1' : window.location.hostname;
+                const backendUrl = `http://${hostname}:5000`;
+                const fullUrl = backendUrl + data.data.url;
+                
                 setQrContent({
                     ...qrContent,
-                    content: data.data.url, // Đã là "/uploads/qr-content/xxx"
+                    content: fullUrl, // Full URL: http://192.168.x.x:5000/uploads/qr-content/xxx
                     isFile: true
                 });
                 alert('✓ Upload thành công!');

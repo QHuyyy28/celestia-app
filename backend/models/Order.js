@@ -94,7 +94,7 @@ const orderSchema = new mongoose.Schema({
   qrContent: {
     type: {
       type: String,
-      enum: ['text', 'url', 'image'],
+      enum: ['text', 'url', 'image', 'file-image', 'file-video', 'file-audio'],
       default: 'text'
     },
     content: {

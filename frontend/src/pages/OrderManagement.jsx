@@ -91,10 +91,13 @@ export default function OrderManagement() {
             let qrContent = selectedOrder.qrContent.content;
             
             // Nếu là file upload, tạo QR từ URL file hoặc tên file
-            if (selectedOrder.qrContent.type === 'video' || selectedOrder.qrContent.type === 'image') {
+            if (selectedOrder.qrContent.type === 'video' || selectedOrder.qrContent.type === 'image' || selectedOrder.qrContent.type === 'audio' || selectedOrder.qrContent.type === 'file-image' || selectedOrder.qrContent.type === 'file-video' || selectedOrder.qrContent.type === 'file-audio') {
                 // QR sẽ chứa URL của file (không phải content của file)
                 if (qrContent.startsWith('/uploads/')) {
-                    qrContent = `${getBackendUrl()}${qrContent}`;
+                    // Dùng hostname thực (không localhost) để điện thoại có thể truy cập
+                    const hostname = window.location.hostname === 'localhost' ? '127.0.0.1' : window.location.hostname;
+                    const backendUrl = `http://${hostname}:5000`;
+                    qrContent = `${backendUrl}${qrContent}`;
                 }
             }
             
