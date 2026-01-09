@@ -2,17 +2,17 @@ import axios from 'axios';
 
 // Tự động detect môi trường production hay development
 const getApiBaseUrl = () => {
-    // Nếu có biến môi trường VITE_API_URL thì dùng nó
+    // Nếu có biến môi trường VITE_API_URL thì dùng nó (ưu tiên cao nhất)
     if (import.meta.env.VITE_API_URL) {
         console.log('Using VITE_API_URL:', import.meta.env.VITE_API_URL);
         return import.meta.env.VITE_API_URL;
     }
     
-    // Nếu đang ở production (celestia.id.vn), dùng backend production
+    // Nếu đang ở production (celestia.id.vn), dùng backend Render
     const hostname = window.location.hostname;
     if (hostname === 'celestia.id.vn' || hostname === 'www.celestia.id.vn') {
-        console.log('Detected production environment, using: https://celestia.id.vn/api');
-        return 'https://celestia.id.vn/api';
+        console.log('Detected production environment, using: https://celestia-backend.onrender.com/api');
+        return 'https://celestia-backend.onrender.com/api';
     }
     
     // Mặc định dùng localhost cho development
