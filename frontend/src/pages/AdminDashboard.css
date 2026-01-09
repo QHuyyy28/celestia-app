@@ -96,17 +96,107 @@
 }
 
 @media (max-width: 768px) {
+    .dashboard-title {
+        font-size: 22px;
+        margin-bottom: 20px;
+    }
+
     .stats-grid {
-        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+        margin-bottom: 30px;
+    }
+
+    .stat-card {
+        padding: 15px;
+        flex-direction: column;
+        text-align: center;
+        gap: 10px;
+    }
+
+    .stat-icon {
+        font-size: 32px;
+        min-width: auto;
+    }
+
+    .stat-value {
+        font-size: 20px;
+    }
+
+    .stat-content h3 {
+        font-size: 12px;
     }
 
     .dashboard-section {
         padding: 15px;
     }
 
+    .dashboard-section h2 {
+        font-size: 18px;
+        margin-bottom: 15px;
+    }
+
+    .recent-products table {
+        font-size: 13px;
+    }
+
     .recent-products th,
     .recent-products td {
         padding: 8px;
-        font-size: 14px;
+        font-size: 13px;
+    }
+}
+
+@media (max-width: 576px) {
+    .dashboard-title {
+        font-size: 20px;
+        margin-bottom: 15px;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+
+    .stat-card {
+        padding: 12px;
+    }
+
+    .stat-icon {
+        font-size: 28px;
+    }
+
+    .stat-value {
+        font-size: 18px;
+    }
+
+    .stat-content h3 {
+        font-size: 11px;
+    }
+
+    .dashboard-section {
+        padding: 12px;
+    }
+
+    .dashboard-section h2 {
+        font-size: 16px;
+        margin-bottom: 12px;
+        padding-bottom: 10px;
+    }
+
+    .recent-products {
+        overflow-x: auto;
+    }
+
+    .recent-products table {
+        min-width: 500px;
+        font-size: 12px;
+    }
+
+    .recent-products th,
+    .recent-products td {
+        padding: 6px;
+        font-size: 12px;
     }
 }
