@@ -71,8 +71,10 @@ router.post('/qr-content', protect, (req, res) => {
                 });
             }
 
-            // Trả về URL của file
-            const fileUrl = `/uploads/qr-content/${req.file.filename}`;
+            // Tạo full URL để có thể truy cập từ bên ngoài (mobile scan QR)
+            const protocol = req.protocol;
+            const host = req.get('host');
+            const fileUrl = `${protocol}://${host}/uploads/qr-content/${req.file.filename}`;
             
             res.json({
                 success: true,

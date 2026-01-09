@@ -1,10 +1,14 @@
 import React, { useState } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
+import { getBackendUrl } from '../services/api';
+import api from '../services/api';
 import './QRGenerator.css';
 
 export default function QRGenerator({ onClose }) {
     const [qrData, setQrData] = useState('');
     const [contentType, setContentType] = useState('text');
+    const [uploading, setUploading] = useState(false);
+    const [uploadedFile, setUploadedFile] = useState(null);
     const [formData, setFormData] = useState({
         text: '',
         url: '',
@@ -16,6 +20,7 @@ export default function QRGenerator({ onClose }) {
     const handleTypeChange = (type) => {
         setContentType(type);
         setQrData('');
+        setUploadedFile(null);
     };
 
     const handleInputChange = (field, value) => {
@@ -23,6 +28,53 @@ export default function QRGenerator({ onClose }) {
             ...formData,
             [field]: value
         });
+    };
+
+    const handleFileUpload = async (event) => {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        // Validate file type based on content type
+        const validTypes = {
+            'upload-video': ['video/mp4', 'video/avi', 'video/mov', 'video/webm'],
+            'upload-image': ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'],
+            'upload-audio': ['audio/mp3', 'audio/wav', 'audio/m4a', 'audio/ogg', 'audio/mpeg']
+        };
+
+        const allowedTypes = validTypes[contentType] || [];
+        if (allowedTypes.length > 0 && !allowedTypes.includes(file.type)) {
+            alert(`File không đúng định dạng! Vui lòng chọn file ${contentType.replace('upload-', '')}.`);
+            return;
+        }
+
+        setUploading(true);
+        try {
+            const formDataObj = new FormData();
+            formDataObj.append('file', file);
+
+            const response = await api.post('/upload/qr-content', formDataObj, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            });
+
+            if (response.data.success) {
+                const fileUrl = response.data.data.url;
+                setUploadedFile({
+                    url: fileUrl,
+                    name: file.name,
+                    type: file.type
+                });
+                // Auto generate QR after upload
+                setQrData(fileUrl);
+                alert('Upload thành công! QR code đã được tạo.');
+            }
+        } catch (error) {
+            console.error('Upload error:', error);
+            alert(error.response?.data?.message || 'Lỗi khi upload file');
+        } finally {
+            setUploading(false);
+        }
     };
 
     const generateQR = () => {
@@ -100,25 +152,25 @@ export default function QRGenerator({ onClose }) {
                             className={`qr-type-btn ${contentType === 'url' ? 'active' : ''}`}
                             onClick={() => handleTypeChange('url')}
                         >
-                            🔗 Website
+                            🔗 Link (Website, YouTube, Nhạc, Video)
                         </button>
                         <button
-                            className={`qr-type-btn ${contentType === 'music' ? 'active' : ''}`}
-                            onClick={() => handleTypeChange('music')}
+                            className={`qr-type-btn ${contentType === 'upload-image' ? 'active' : ''}`}
+                            onClick={() => handleTypeChange('upload-image')}
                         >
-                            🎵 Nhạc
+                            🖼️ Upload Hình ảnh
                         </button>
                         <button
-                            className={`qr-type-btn ${contentType === 'video' ? 'active' : ''}`}
-                            onClick={() => handleTypeChange('video')}
+                            className={`qr-type-btn ${contentType === 'upload-video' ? 'active' : ''}`}
+                            onClick={() => handleTypeChange('upload-video')}
                         >
-                            🎬 Video
+                            🎬 Upload Video
                         </button>
                         <button
-                            className={`qr-type-btn ${contentType === 'image' ? 'active' : ''}`}
-                            onClick={() => handleTypeChange('image')}
+                            className={`qr-type-btn ${contentType === 'upload-audio' ? 'active' : ''}`}
+                            onClick={() => handleTypeChange('upload-audio')}
                         >
-                            🖼️ Hình ảnh
+                            🎵 Upload Nhạc
                         </button>
                     </div>
 
@@ -138,59 +190,82 @@ export default function QRGenerator({ onClose }) {
 
                         {contentType === 'url' && (
                             <div className="qr-form-group">
-                                <label>Nhập URL website:</label>
+                                <label>Nhập URL (Website, YouTube, Nhạc, Video...):</label>
                                 <input
                                     type="url"
                                     value={formData.url}
                                     onChange={(e) => handleInputChange('url', e.target.value)}
                                     placeholder="https://example.com"
                                 />
-                                <small>Ví dụ: https://google.com, https://facebook.com</small>
+                                <small>Ví dụ: https://google.com, https://youtube.com/watch?v=..., https://spotify.com/...</small>
                             </div>
                         )}
 
-                        {contentType === 'music' && (
+                        {contentType === 'upload-image' && (
                             <div className="qr-form-group">
-                                <label>Nhập link nhạc:</label>
+                                <label>📤 Upload Hình ảnh từ máy:</label>
                                 <input
-                                    type="url"
-                                    value={formData.musicUrl}
-                                    onChange={(e) => handleInputChange('musicUrl', e.target.value)}
-                                    placeholder="https://spotify.com/track/..."
+                                    type="file"
+                                    accept="image/jpeg,image/jpg,image/png,image/gif"
+                                    onChange={handleFileUpload}
+                                    disabled={uploading}
                                 />
-                                <small>Ví dụ: Spotify, YouTube Music, SoundCloud, Zing MP3</small>
+                                <small>Chọn file hình ảnh (.jpg, .png, .gif). Sau khi quét QR sẽ hiển thị ảnh trực tiếp.</small>
+                                {uploading && <p className="upload-status">⏳ Đang upload...</p>}
+                                {uploadedFile && (
+                                    <div className="upload-preview">
+                                        <p>✅ Đã upload: {uploadedFile.name}</p>
+                                        <img src={uploadedFile.url} alt="Preview" style={{maxWidth: '200px', marginTop: '10px'}} />
+                                    </div>
+                                )}
                             </div>
                         )}
 
-                        {contentType === 'video' && (
+                        {contentType === 'upload-video' && (
                             <div className="qr-form-group">
-                                <label>Nhập link video:</label>
+                                <label>📤 Upload Video từ máy:</label>
                                 <input
-                                    type="url"
-                                    value={formData.videoUrl}
-                                    onChange={(e) => handleInputChange('videoUrl', e.target.value)}
-                                    placeholder="https://youtube.com/watch?v=..."
+                                    type="file"
+                                    accept="video/mp4,video/avi,video/mov,video/webm"
+                                    onChange={handleFileUpload}
+                                    disabled={uploading}
                                 />
-                                <small>Ví dụ: YouTube, Vimeo, TikTok</small>
+                                <small>Chọn file video (.mp4, .avi, .mov, .webm). Sau khi quét QR sẽ xem video trực tiếp.</small>
+                                {uploading && <p className="upload-status">⏳ Đang upload...</p>}
+                                {uploadedFile && (
+                                    <div className="upload-preview">
+                                        <p>✅ Đã upload: {uploadedFile.name}</p>
+                                        <video src={uploadedFile.url} controls style={{maxWidth: '300px', marginTop: '10px'}} />
+                                    </div>
+                                )}
                             </div>
                         )}
 
-                        {contentType === 'image' && (
+                        {contentType === 'upload-audio' && (
                             <div className="qr-form-group">
-                                <label>Nhập link hình ảnh:</label>
+                                <label>📤 Upload Nhạc/Audio từ máy:</label>
                                 <input
-                                    type="url"
-                                    value={formData.imageUrl}
-                                    onChange={(e) => handleInputChange('imageUrl', e.target.value)}
-                                    placeholder="https://example.com/image.jpg"
+                                    type="file"
+                                    accept="audio/mp3,audio/wav,audio/m4a,audio/ogg,audio/mpeg"
+                                    onChange={handleFileUpload}
+                                    disabled={uploading}
                                 />
-                                <small>Link trực tiếp đến hình ảnh (.jpg, .png, .gif...)</small>
+                                <small>Chọn file audio (.mp3, .wav, .m4a, .ogg). Sau khi quét QR sẽ nghe nhạc trực tiếp.</small>
+                                {uploading && <p className="upload-status">⏳ Đang upload...</p>}
+                                {uploadedFile && (
+                                    <div className="upload-preview">
+                                        <p>✅ Đã upload: {uploadedFile.name}</p>
+                                        <audio src={uploadedFile.url} controls style={{marginTop: '10px', width: '100%'}} />
+                                    </div>
+                                )}
                             </div>
                         )}
 
-                        <button className="qr-generate-btn" onClick={generateQR}>
-                            ✨ Tạo QR Code
-                        </button>
+                        {!contentType.startsWith('upload-') && (
+                            <button className="qr-generate-btn" onClick={generateQR}>
+                                ✨ Tạo QR Code
+                            </button>
+                        )}
                     </div>
 
                     {/* QR Code Display */}
