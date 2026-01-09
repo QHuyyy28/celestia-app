@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import './AdminLayout.css';
@@ -6,6 +6,7 @@ import './AdminLayout.css';
 export const AdminLayout = ({ children }) => {
     const { user, logout, isAuthenticated } = useAuth();
     const navigate = useNavigate();
+    const [sidebarOpen, setSidebarOpen] = useState(false);
 
     // Redirect nếu không phải admin
     if (!isAuthenticated || user?.role !== 'admin') {
@@ -18,30 +19,38 @@ export const AdminLayout = ({ children }) => {
         navigate('/login');
     };
 
+    const toggleSidebar = () => {
+        setSidebarOpen(!sidebarOpen);
+    };
+
+    const closeSidebar = () => {
+        setSidebarOpen(false);
+    };
+
     return (
         <div className="admin-container">
             {/* Sidebar */}
-            <aside className="admin-sidebar">
+            <aside className={`admin-sidebar ${sidebarOpen ? 'active' : ''}`}>
                 <div className="sidebar-header">
                     <h3 className="sidebar-logo">⚙️ Admin Panel</h3>
                 </div>
                 <nav className="sidebar-nav">
-                    <Link to="/admin/dashboard" className="nav-link">
+                    <Link to="/admin/dashboard" className="nav-link" onClick={closeSidebar}>
                         📊 Dashboard
                     </Link>
-                    <Link to="/admin/products" className="nav-link">
+                    <Link to="/admin/products" className="nav-link" onClick={closeSidebar}>
                         📦 Quản lý sản phẩm
                     </Link>
-                    <Link to="/admin/categories" className="nav-link">
+                    <Link to="/admin/categories" className="nav-link" onClick={closeSidebar}>
                         📂 Quản lý danh mục
                     </Link>
-                    <Link to="/admin/orders" className="nav-link">
+                    <Link to="/admin/orders" className="nav-link" onClick={closeSidebar}>
                         📋 Quản lý đơn hàng
                     </Link>
-                    <Link to="/admin/users" className="nav-link">
+                    <Link to="/admin/users" className="nav-link" onClick={closeSidebar}>
                         👥 Quản lý người dùng
                     </Link>
-                    <Link to="/admin/blogs" className="nav-link">
+                    <Link to="/admin/blogs" className="nav-link" onClick={closeSidebar}>
                         📝 Quản lý bài viết
                     </Link>
                 </nav>
@@ -52,6 +61,9 @@ export const AdminLayout = ({ children }) => {
                 {/* Top Bar */}
                 <header className="admin-topbar">
                     <div className="topbar-left">
+                        <button className="mobile-menu-toggle" onClick={toggleSidebar}>
+                            ☰
+                        </button>
                         <h2 className="topbar-title">Celestia Admin</h2>
                     </div>
                     <div className="topbar-right">

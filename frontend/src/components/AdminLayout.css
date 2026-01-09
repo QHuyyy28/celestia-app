@@ -83,6 +83,9 @@
 
 .topbar-left {
     flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 15px;
 }
 
 .topbar-title {
@@ -90,6 +93,17 @@
     color: #2c3e50;
     font-size: 24px;
     font-weight: 600;
+}
+
+.mobile-menu-toggle {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: #2c3e50;
+    cursor: pointer;
+    padding: 5px;
+    -webkit-tap-highlight-color: transparent;
 }
 
 .topbar-right {
@@ -124,34 +138,108 @@
 
 /* Responsive */
 @media (max-width: 768px) {
+    .admin-container {
+        flex-direction: column;
+        padding-top: 60px;
+    }
+
     .admin-sidebar {
-        width: 200px;
+        width: 100%;
+        height: auto;
+        position: fixed;
+        top: 60px;
+        left: -100%;
+        transition: left 0.3s ease;
+        z-index: 99;
+        max-height: calc(100vh - 60px);
     }
 
-    .admin-main {
-        margin-left: 200px;
+    .admin-sidebar.active {
+        left: 0;
     }
 
-    .admin-content {
-        padding: 20px;
+    .sidebar-header {
+        padding: 15px 20px;
+    }
+
+    .sidebar-logo {
+        font-size: 18px;
+    }
+
+    .sidebar-nav .nav-link {
+        padding: 14px 20px;
+        font-size: 15px;
+    }
+
+    .admin-topbar {
+        padding: 10px 15px;
+        height: 60px;
     }
 
     .topbar-title {
-        font-size: 20px;
+        font-size: 18px;
+    }
+
+    .topbar-right {
+        gap: 10px;
+    }
+
+    .admin-user-info {
+        display: none;
+    }
+
+    .admin-main {
+        margin-left: 0;
+        width: 100%;
+    }
+
+    .admin-content {
+        padding: 15px;
+    }
+
+    /* Add hamburger menu button */
+    .mobile-menu-toggle {
+        display: block;
+        background: none;
+        border: none;
+        font-size: 24px;
+        color: #2c3e50;
+        cursor: pointer;
+        padding: 5px;
+    }
+}
+
+@media (min-width: 769px) {
+    .mobile-menu-toggle {
+        display: none;
     }
 }
 
 @media (max-width: 576px) {
-    .admin-sidebar {
-        width: 150px;
+    .admin-container {
+        padding-top: 55px;
     }
 
-    .admin-main {
-        margin-left: 150px;
+    .admin-topbar {
+        padding: 8px 10px;
+        height: 55px;
+    }
+
+    .topbar-title {
+        font-size: 16px;
     }
 
     .sidebar-nav .nav-link {
-        padding: 10px 15px;
+        padding: 12px 15px;
         font-size: 14px;
+    }
+
+    .admin-content {
+        padding: 10px;
+    }
+
+    .btn-danger {
+        padding: 6px 12px;
+        font-size: 13px;
     }
 }

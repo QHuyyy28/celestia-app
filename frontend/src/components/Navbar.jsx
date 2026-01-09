@@ -11,10 +11,22 @@ export const Navbar = () => {
     const { wishlist } = useWishlist();
     const navigate = useNavigate();
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const [dropdownOpen, setDropdownOpen] = useState(false);
 
     const handleLogout = () => {
         logout();
         navigate('/');
+        setMobileMenuOpen(false);
+        setDropdownOpen(false);
+    };
+
+    const toggleDropdown = () => {
+        setDropdownOpen(!dropdownOpen);
+    };
+
+    const closeMenus = () => {
+        setMobileMenuOpen(false);
+        setDropdownOpen(false);
     };
 
     return (
@@ -33,10 +45,10 @@ export const Navbar = () => {
                 </button>
 
                 <ul className={`navbar-menu ${mobileMenuOpen ? 'active' : ''}`}>
-                    <li><Link to="/">Home</Link></li>
-                    <li><Link to="/products">Shop</Link></li>
-                    <li><Link to="/blog">Stories</Link></li>
-                    <li><Link to="/products">Collections</Link></li>
+                    <li><Link to="/" onClick={closeMenus}>Home</Link></li>
+                    <li><Link to="/products" onClick={closeMenus}>Shop</Link></li>
+                    <li><Link to="/blog" onClick={closeMenus}>Stories</Link></li>
+                    <li><Link to="/products" onClick={closeMenus}>Collections</Link></li>
                 </ul>
 
                 <div className="navbar-icons">
@@ -55,16 +67,16 @@ export const Navbar = () => {
                                 )}
                             </Link>
                             <div className="user-dropdown">
-                                <div className="user-name">
+                                <div className="user-name" onClick={toggleDropdown}>
                                     {user?.name} ▾
                                 </div>
-                                <div className="dropdown-menu">
-                                    <Link to="/profile" className="dropdown-item">Profile</Link>
-                                    <Link to="/orders" className="dropdown-item">My Orders</Link>
+                                <div className={`dropdown-menu ${dropdownOpen ? 'active' : ''}`}>
+                                    <Link to="/profile" className="dropdown-item" onClick={closeMenus}>Profile</Link>
+                                    <Link to="/orders" className="dropdown-item" onClick={closeMenus}>My Orders</Link>
                                     {user?.role === 'admin' && (
                                         <>
                                             <hr className="dropdown-divider" />
-                                            <Link to="/admin/dashboard" className="dropdown-item">
+                                            <Link to="/admin/dashboard" className="dropdown-item" onClick={closeMenus}>
                                                 Admin Panel
                                             </Link>
                                         </>
