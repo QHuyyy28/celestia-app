@@ -31,7 +31,9 @@ const corsOptions = {
     const allowedOrigins = [
       process.env.FRONTEND_URL || 'http://localhost:3000',
       'http://localhost:3000',
-      'http://127.0.0.1:3000'
+      'http://127.0.0.1:3000',
+      'https://celestia.id.vn',
+      'https://www.celestia.id.vn'
     ];
     
     // Cho phép request không có origin (mobile apps, Postman, etc)
