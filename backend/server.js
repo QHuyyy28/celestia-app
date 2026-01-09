@@ -52,8 +52,9 @@ app.use(cors(corsOptions)); // Cho phép Frontend gọi API
 app.use(express.json()); // Cho phép nhận dữ liệu JSON
 app.use(express.urlencoded({ extended: true }));
 
-// Serve static files (uploaded files)
+// Serve static files (uploaded files và public folder)
 app.use('/uploads', express.static('uploads'));
+app.use(express.static('public'));
 
 // Route test đơn giản
 app.get('/', (req, res) => {

@@ -72,15 +72,19 @@ router.post('/qr-content', protect, (req, res) => {
             }
 
             // Tạo full URL để có thể truy cập từ bên ngoài (mobile scan QR)
-            const protocol = req.protocol;
-            const host = req.get('host');
-            const fileUrl = `${protocol}://${host}/uploads/qr-content/${req.file.filename}`;
+            // Dùng BACKEND_URL từ env nếu có (production), nếu không fallback về localhost
+            const backendUrl = process.env.BACKEND_URL || `${req.protocol}://${req.get('host')}`;
+            
+            // Tạo URL viewer để hiển thị media trên mobile browser
+            const filePath = `/uploads/qr-content/${req.file.filename}`;
+            const fileUrl = `${backendUrl}/qr-viewer.html?file=${filePath}`;
             
             res.json({
                 success: true,
                 message: 'Upload thành công',
                 data: {
                     url: fileUrl,
+                    directUrl: `${backendUrl}${filePath}`,
                     filename: req.file.originalname,
                     size: req.file.size,
                     mimetype: req.file.mimetype

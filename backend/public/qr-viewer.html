@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Content Viewer - Celestia</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 800px;
+            width: 100%;
+            padding: 40px;
+            text-align: center;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        p {
+            color: #666;
+            margin-bottom: 30px;
+        }
+        .media-container {
+            margin: 30px 0;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        img, video {
+            max-width: 100%;
+            height: auto;
+            display: block;
+        }
+        audio {
+            width: 100%;
+            margin: 20px 0;
+        }
+        .error {
+            color: #e74c3c;
+            padding: 20px;
+            background: #fee;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        .logo {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">🎨</div>
+        <h1>Celestia QR Content</h1>
+        <p>Nội dung từ mã QR của bạn</p>
+        
+        <div id="content" class="media-container"></div>
+    </div>
+
+    <script>
+        // Get file path from URL parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        const filePath = urlParams.get('file');
+        
+        const contentDiv = document.getElementById('content');
+
+        if (!filePath) {
+            contentDiv.innerHTML = '<div class="error">❌ Không tìm thấy file</div>';
+        } else {
+            // Detect file type from extension
+            const ext = filePath.split('.').pop().toLowerCase();
+            const fullUrl = window.location.origin + filePath;
+            
+            if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext)) {
+                // Image
+                contentDiv.innerHTML = `<img src="${fullUrl}" alt="QR Image" />`;
+            } else if (['mp4', 'webm', 'ogg', 'avi', 'mov'].includes(ext)) {
+                // Video
+                contentDiv.innerHTML = `
+                    <video controls autoplay>
+                        <source src="${fullUrl}" type="video/${ext === 'mov' ? 'quicktime' : ext}">
+                        Trình duyệt của bạn không hỗ trợ video.
+                    </video>
+                `;
+            } else if (['mp3', 'wav', 'm4a', 'ogg'].includes(ext)) {
+                // Audio
+                contentDiv.innerHTML = `
+                    <div>
+                        <p style="margin-bottom: 20px;">🎵 Đang phát nhạc...</p>
+                        <audio controls autoplay>
+                            <source src="${fullUrl}" type="audio/${ext}">
+                            Trình duyệt của bạn không hỗ trợ audio.
+                        </audio>
+                    </div>
+                `;
+            } else {
+                contentDiv.innerHTML = `
+                    <div class="error">
+                        ⚠️ Định dạng file không được hỗ trợ<br>
+                        <small>File: ${filePath}</small>
+                    </div>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>
