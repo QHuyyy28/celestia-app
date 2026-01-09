@@ -1,7 +1,27 @@
 import axios from 'axios';
 
-// Sử dụng environment variable hoặc fallback về localhost
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+// Tự động detect môi trường production hay development
+const getApiBaseUrl = () => {
+    // Nếu có biến môi trường VITE_API_URL thì dùng nó
+    if (import.meta.env.VITE_API_URL) {
+        console.log('Using VITE_API_URL:', import.meta.env.VITE_API_URL);
+        return import.meta.env.VITE_API_URL;
+    }
+    
+    // Nếu đang ở production (celestia.id.vn), dùng backend production
+    const hostname = window.location.hostname;
+    if (hostname === 'celestia.id.vn' || hostname === 'www.celestia.id.vn') {
+        console.log('Detected production environment, using: https://celestia.id.vn/api');
+        return 'https://celestia.id.vn/api';
+    }
+    
+    // Mặc định dùng localhost cho development
+    console.log('Using development localhost: http://localhost:5000/api');
+    return 'http://localhost:5000/api';
+};
+
+const API_BASE_URL = getApiBaseUrl();
+console.log('Final API_BASE_URL:', API_BASE_URL);
 
 // Get backend server URL (remove /api suffix for static files)
 export const getBackendUrl = () => {
