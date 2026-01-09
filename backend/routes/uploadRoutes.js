@@ -72,22 +72,43 @@ router.post('/qr-content', protect, (req, res) => {
             }
 
             // Tạo full URL để có thể truy cập từ bên ngoài (mobile scan QR)
-            // Dùng BACKEND_URL từ env nếu có (production), nếu không fallback về localhost
-            const backendUrl = process.env.BACKEND_URL || `${req.protocol}://${req.get('host')}`;
+            // Production: dùng domain thực, Development: dùng ngrok hoặc public IP
+            let backendUrl = process.env.BACKEND_URL;
+            
+            // Nếu không có BACKEND_URL, tự động detect
+            if (!backendUrl) {
+                const host = req.get('host');
+                // Nếu là localhost, cảnh báo người dùng
+                if (host.includes('localhost') || host.includes('127.0.0.1')) {
+                    console.warn('⚠️  CẢNH BÁO: Đang dùng localhost, QR code sẽ không quét được từ điện thoại khác!');
+                    console.warn('💡 Giải pháp: Cần deploy backend hoặc dùng ngrok/localtunnel để tạo URL public');
+                }
+                backendUrl = `${req.protocol}://${host}`;
+            }
             
             // Tạo URL viewer để hiển thị media trên mobile browser
             const filePath = `/uploads/qr-content/${req.file.filename}`;
             const fileUrl = `${backendUrl}/qr-viewer.html?file=${filePath}`;
+            const directUrl = `${backendUrl}${filePath}`;
+            
+            console.log('✅ File uploaded:', {
+                filename: req.file.originalname,
+                qrUrl: fileUrl,
+                directUrl: directUrl
+            });
             
             res.json({
                 success: true,
                 message: 'Upload thành công',
                 data: {
                     url: fileUrl,
-                    directUrl: `${backendUrl}${filePath}`,
+                    directUrl: directUrl,
                     filename: req.file.originalname,
                     size: req.file.size,
-                    mimetype: req.file.mimetype
+                    mimetype: req.file.mimetype,
+                    warning: backendUrl.includes('localhost') 
+                        ? 'QR code chứa localhost, chỉ truy cập được từ máy này. Cần deploy backend để quét từ điện thoại khác.'
+                        : null
                 }
             });
         } catch (error) {

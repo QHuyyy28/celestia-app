@@ -60,6 +60,8 @@ export default function QRGenerator({ onClose }) {
 
             if (response.data.success) {
                 const fileUrl = response.data.data.url;
+                const warning = response.data.data.warning;
+                
                 setUploadedFile({
                     url: fileUrl,
                     name: file.name,
@@ -67,7 +69,15 @@ export default function QRGenerator({ onClose }) {
                 });
                 // Auto generate QR after upload
                 setQrData(fileUrl);
-                alert('Upload thành công! QR code đã được tạo.');
+                
+                // Hiện cảnh báo nếu URL chứa localhost
+                if (warning) {
+                    alert(`⚠️ CẢNH BÁO:\n\n${warning}\n\n💡 Giải pháp:\n- Dùng Ngrok: ngrok http 5000\n- Hoặc deploy backend lên Render\n- Xem file QR-FIX-LOCALHOST.md để biết chi tiết`);
+                } else if (fileUrl.includes('localhost') || fileUrl.includes('127.0.0.1')) {
+                    alert('⚠️ CẢNH BÁO:\n\nQR code chứa localhost, chỉ truy cập được từ máy này.\n\n💡 Để quét từ điện thoại:\n1. Dùng Ngrok: ngrok http 5000\n2. Hoặc deploy backend\n\nXem QR-FIX-LOCALHOST.md để biết chi tiết!');
+                } else {
+                    alert('✅ Upload thành công! QR code đã được tạo.\n\n🎉 Bạn có thể quét QR từ bất kỳ thiết bị nào!');
+                }
             }
         } catch (error) {
             console.error('Upload error:', error);
