@@ -27,6 +27,7 @@ import CategoryManagement from './pages/CategoryManagement';
 import OrderManagement from './pages/OrderManagement';
 import UserManagement from './pages/UserManagement';
 import BlogManagement from './pages/BlogManagement';
+import MediaManagement from './pages/MediaManagement';
 import './App.css';
 
 // Component bảo vệ route admin
@@ -69,6 +70,7 @@ function AppContent() {
       <Route path="/admin/orders" element={<PrivateAdminRoute element={<OrderManagement />} />} />
       <Route path="/admin/users" element={<PrivateAdminRoute element={<UserManagement />} />} />
       <Route path="/admin/blogs" element={<PrivateAdminRoute element={<BlogManagement />} />} />
+      <Route path="/admin/media" element={<PrivateAdminRoute element={<MediaManagement />} />} />
 
       {/* 404 */}
       <Route path="*" element={<NotFound />} />

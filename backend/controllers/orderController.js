@@ -102,6 +102,44 @@ exports.createOrder = async (req, res) => {
             // Vẫn trả về thành công dù email gửi không thành công
         }
 
+        // Nếu có qrContent với file upload, cập nhật metadata để link với order
+        if (qrContent && qrContent.content && qrContent.isFile) {
+            try {
+                // Lấy filename từ URL (VD: /uploads/qr-content/qr-123456.mp4 -> qr-123456.mp4)
+                const urlParts = qrContent.content.split('/');
+                const filename = urlParts[urlParts.length - 1];
+                
+                console.log('Linking file to order:', {
+                    filename,
+                    orderId: order._id,
+                    orderNumber: order._id.toString().slice(-8).toUpperCase()
+                });
+                
+                // Import fs và path nếu chưa có
+                const fs = require('fs');
+                const path = require('path');
+                
+                // Đọc và cập nhật metadata
+                const metadataFile = path.join(__dirname, '../uploads/qr-content/metadata.json');
+                if (fs.existsSync(metadataFile)) {
+                    const metadata = JSON.parse(fs.readFileSync(metadataFile, 'utf8'));
+                    
+                    if (metadata[filename]) {
+                        metadata[filename].orderId = order._id.toString();
+                        metadata[filename].orderNumber = order._id.toString().slice(-8).toUpperCase();
+                        metadata[filename].customerName = req.user.name;
+                        metadata[filename].updatedAt = new Date().toISOString();
+                        
+                        fs.writeFileSync(metadataFile, JSON.stringify(metadata, null, 2));
+                        console.log('✓ Linked file to order successfully');
+                    }
+                }
+            } catch (linkError) {
+                console.error('Failed to link file to order:', linkError);
+                // Không throw error, chỉ log
+            }
+        }
+
         res.status(201).json({
             success: true,
             message: 'Đặt hàng thành công. Email xác nhận đã được gửi',
