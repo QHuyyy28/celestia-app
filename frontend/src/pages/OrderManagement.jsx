@@ -16,6 +16,9 @@ export default function OrderManagement() {
     const [statusUpdating, setStatusUpdating] = useState(false);
     const [qrCodeUrl, setQrCodeUrl] = useState(null);
     const [generatingQR, setGeneratingQR] = useState(false);
+    const [orderFiles, setOrderFiles] = useState([]);
+    const [loadingFiles, setLoadingFiles] = useState(false);
+    const [uploadingFile, setUploadingFile] = useState(false);
     const limit = 10;
 
     const fetchOrders = useCallback(async () => {
@@ -146,9 +149,93 @@ export default function OrderManagement() {
         link.click();
     };
 
+    // Fetch files cho đơn hàng
+    const fetchOrderFiles = async (orderId) => {
+        setLoadingFiles(true);
+        try {
+            const token = localStorage.getItem('token');
+            const response = await fetch(`http://localhost:5000/api/upload/files?orderId=${orderId}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            const data = await response.json();
+            if (data.success) {
+                setOrderFiles(data.data);
+            }
+        } catch (error) {
+            console.error('Error fetching files:', error);
+        } finally {
+            setLoadingFiles(false);
+        }
+    };
+
+    // Upload file cho đơn hàng
+    const handleFileUpload = async (e, order) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        if (file.size > 100 * 1024 * 1024) {
+            alert('File quá lớn! Vui lòng chọn file nhỏ hơn 100MB');
+            return;
+        }
+
+        setUploadingFile(true);
+        const formData = new FormData();
+        
+        // QUAN TRỌNG: Append các field text TRƯỚC khi append file
+        formData.append('orderId', order._id);
+        formData.append('orderNumber', order._id.slice(-8).toUpperCase());
+        formData.append('customerName', order.user?.name || 'N/A');
+        formData.append('note', `Đơn hàng ${order._id.slice(-8).toUpperCase()}`);
+        formData.append('file', file); // File phải append sau cùng
+
+        console.log('Uploading with order info:', {
+            orderId: order._id,
+            orderNumber: order._id.slice(-8).toUpperCase(),
+            customerName: order.user?.name
+        });
+
+        try {
+            const token = localStorage.getItem('token');
+            const response = await fetch('http://localhost:5000/api/upload/qr-content', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                },
+                body: formData
+            });
+
+            const data = await response.json();
+            if (data.success) {
+                alert('Upload thành công!');
+                fetchOrderFiles(order._id);
+            } else {
+                alert(data.message);
+            }
+        } catch (error) {
+            console.error('Error uploading file:', error);
+            alert('Lỗi khi upload file');
+        } finally {
+            setUploadingFile(false);
+            e.target.value = '';
+        }
+    };
+
+    const handleDownloadFile = (downloadUrl, filename) => {
+        const link = document.createElement('a');
+        link.href = downloadUrl;
+        link.download = filename;
+        link.target = '_blank';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
     const closeModal = () => {
         setSelectedOrder(null);
         setQrCodeUrl(null);
+        setOrderFiles([]);
     };
 
     const getStatusColor = (status) => {
@@ -261,7 +348,10 @@ export default function OrderManagement() {
                                             <td className="action-buttons">
                                                 <button
                                                     className="btn-view"
-                                                    onClick={() => setSelectedOrder(order)}
+                                                    onClick={() => {
+                                                        setSelectedOrder(order);
+                                                        fetchOrderFiles(order._id);
+                                                    }}
                                                     title="Chi tiết"
                                                 >
                                                     👁️
@@ -544,6 +634,124 @@ export default function OrderManagement() {
                                         )}
                                     </div>
                                 )}
+
+                                {/* Upload & Files Section */}
+                                <div className="order-files-section" style={{ 
+                                    backgroundColor: '#f9f9f9', 
+                                    padding: '20px', 
+                                    borderRadius: '10px', 
+                                    marginTop: '20px',
+                                    border: '2px dashed #ccc'
+                                }}>
+                                    <h3 style={{ marginTop: 0, display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                        🎬 Media của đơn hàng này
+                                    </h3>
+                                    
+                                    {/* Upload Button */}
+                                    <div style={{ marginBottom: '15px' }}>
+                                        <label className="upload-btn" style={{
+                                            display: 'inline-block',
+                                            backgroundColor: '#667eea',
+                                            color: 'white',
+                                            padding: '10px 20px',
+                                            borderRadius: '8px',
+                                            cursor: 'pointer',
+                                            fontWeight: 'bold'
+                                        }}>
+                                            {uploadingFile ? '⏳ Đang upload...' : '📤 Upload File (Ảnh/Video/Audio)'}
+                                            <input 
+                                                type="file" 
+                                                accept="image/*,video/*,audio/*"
+                                                onChange={(e) => handleFileUpload(e, selectedOrder)}
+                                                disabled={uploadingFile}
+                                                style={{ display: 'none' }}
+                                            />
+                                        </label>
+                                        <button
+                                            onClick={() => window.open('/admin/media', '_blank')}
+                                            style={{
+                                                marginLeft: '10px',
+                                                backgroundColor: '#2196F3',
+                                                color: 'white',
+                                                padding: '10px 20px',
+                                                border: 'none',
+                                                borderRadius: '8px',
+                                                cursor: 'pointer',
+                                                fontWeight: 'bold'
+                                            }}
+                                            title="Xem tất cả media đã upload"
+                                        >
+                                            🗂️ Xem tất cả Media
+                                        </button>
+                                    </div>
+
+                                    {/* Files List */}
+                                    {loadingFiles ? (
+                                        <p>Đang tải danh sách file...</p>
+                                    ) : orderFiles.length === 0 ? (
+                                        <p style={{ color: '#999', fontStyle: 'italic' }}>
+                                            Chưa có file nào được upload cho đơn hàng này.
+                                        </p>
+                                    ) : (
+                                        <div className="files-list">
+                                            {orderFiles.map((file) => (
+                                                <div key={file.filename} style={{
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'space-between',
+                                                    padding: '10px',
+                                                    backgroundColor: 'white',
+                                                    borderRadius: '8px',
+                                                    marginBottom: '10px',
+                                                    border: '1px solid #e0e0e0'
+                                                }}>
+                                                    <div style={{ flex: 1 }}>
+                                                        <div style={{ fontWeight: 'bold', marginBottom: '5px' }}>
+                                                            {file.fileType === 'image' && '🖼️'}
+                                                            {file.fileType === 'video' && '🎬'}
+                                                            {file.fileType === 'audio' && '🎵'}
+                                                            {' '}{file.originalname}
+                                                        </div>
+                                                        <div style={{ fontSize: '12px', color: '#666' }}>
+                                                            {(file.size / 1024 / 1024).toFixed(2)} MB • {new Date(file.uploadDate).toLocaleString('vi-VN')}
+                                                        </div>
+                                                    </div>
+                                                    <div style={{ display: 'flex', gap: '5px' }}>
+                                                        <button
+                                                            onClick={() => window.open(file.viewUrl, '_blank')}
+                                                            style={{
+                                                                backgroundColor: '#2196F3',
+                                                                color: 'white',
+                                                                padding: '8px 15px',
+                                                                border: 'none',
+                                                                borderRadius: '5px',
+                                                                cursor: 'pointer',
+                                                                fontSize: '13px'
+                                                            }}
+                                                        >
+                                                            👁️ Xem
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleDownloadFile(file.downloadUrl, file.originalname)}
+                                                            style={{
+                                                                backgroundColor: '#4CAF50',
+                                                                color: 'white',
+                                                                padding: '8px 15px',
+                                                                border: 'none',
+                                                                borderRadius: '5px',
+                                                                cursor: 'pointer',
+                                                                fontSize: '13px'
+                                                            }}
+                                                        >
+                                                            ⬇️ Tải về
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+
                             </div>
                             <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', marginTop: '20px' }}>
                                 <button

@@ -53,6 +53,9 @@ export const AdminLayout = ({ children }) => {
                     <Link to="/admin/blogs" className="nav-link" onClick={closeSidebar}>
                         📝 Quản lý bài viết
                     </Link>
+                    <Link to="/admin/media" className="nav-link" onClick={closeSidebar}>
+                        🎬 Quản lý Media (QR)
+                    </Link>
                 </nav>
             </aside>
 
