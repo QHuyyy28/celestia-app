@@ -21,9 +21,21 @@ const userSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    required: [true, 'Vui lòng nhập mật khẩu'],
+    required: function() {
+      return !this.isGoogleAccount; // Chỉ bắt buộc nếu không phải Google account
+    },
     minlength: [6, 'Mật khẩu phải có ít nhất 6 ký tự'],
     select: false // Không trả về password khi query
+  },
+  // Google OAuth fields
+  googleId: {
+    type: String,
+    unique: true,
+    sparse: true // Cho phép nhiều documents null
+  },
+  isGoogleAccount: {
+    type: Boolean,
+    default: false
   },
   role: {
     type: String,

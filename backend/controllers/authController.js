@@ -510,3 +510,24 @@ exports.testBirthdayEmail = async (req, res) => {
         });
     }
 };
+
+// @desc    Google OAuth Callback
+// @route   GET /api/auth/google/callback
+// @access  Public
+exports.googleCallback = async (req, res) => {
+    try {
+        // User đã được authenticate bởi passport
+        const user = req.user;
+        
+        // Tạo JWT token
+        const token = generateToken(user._id);
+        
+        // Redirect về frontend với token
+        const frontendURL = process.env.FRONTEND_URL || 'http://localhost:3000';
+        res.redirect(`${frontendURL}/auth/google/callback?token=${token}&userId=${user._id}`);
+    } catch (error) {
+        console.error('Google callback error:', error);
+        const frontendURL = process.env.FRONTEND_URL || 'http://localhost:3000';
+        res.redirect(`${frontendURL}/login?error=google_auth_failed`);
+    }
+};

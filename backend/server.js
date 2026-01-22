@@ -1,8 +1,9 @@
 const express = require('express');
 const dotenv = require('dotenv');
 const cors = require('cors');
+const session = require('express-session');
+const passport = require('./config/passport');
 const connectDB = require('./config/db');
-const { initBirthdayScheduler } = require('./services/birthdayService');
 const authRoutes = require('./routes/authRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
 const productRoutes = require('./routes/productRoutes');
@@ -14,6 +15,7 @@ const reviewRoutes = require('./routes/reviewRoutes');
 const wishlistRoutes = require('./routes/wishlistRoutes');
 const saleRoutes = require('./routes/saleRoutes');
 const uploadRoutes = require('./routes/uploadRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 
 // Load biến môi trường từ file .env
 dotenv.config();
@@ -52,6 +54,21 @@ app.use(cors(corsOptions)); // Cho phép Frontend gọi API
 app.use(express.json()); // Cho phép nhận dữ liệu JSON
 app.use(express.urlencoded({ extended: true }));
 
+// Session middleware (cần cho passport)
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'celestia_secret_key_2025',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: process.env.NODE_ENV === 'production', // true nếu HTTPS
+    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+  }
+}));
+
+// Passport middleware
+app.use(passport.initialize());
+app.use(passport.session());
+
 // Serve static files (uploaded files và public folder)
 app.use('/uploads', express.static('uploads'));
 app.use(express.static('public'));
@@ -73,14 +90,13 @@ app.use('/api/reviews', reviewRoutes);
 app.use('/api/wishlist', wishlistRoutes);
 app.use('/api/sales', saleRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Lấy PORT từ .env hoặc dùng 5000 mặc định
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
-  // Khởi động birthday scheduler
-  initBirthdayScheduler();
 });
 
 // Error handler middleware (bắt lỗi toàn cục)
