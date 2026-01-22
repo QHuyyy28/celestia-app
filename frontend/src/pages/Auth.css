@@ -277,6 +277,42 @@
   to { transform: rotate(360deg); }
 }
 
+/* Google Login Button */
+.google-button {
+  width: 100%;
+  padding: 14px 20px;
+  background: #fff;
+  border: 2px solid #ddd;
+  border-radius: 0;
+  font-size: 15px;
+  font-weight: 500;
+  color: #444;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  font-family: inherit;
+}
+
+.google-button:hover:not(:disabled) {
+  background: #f8f9fa;
+  border-color: #c7beb5;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(93, 78, 55, 0.1);
+}
+
+.google-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.google-icon {
+  display: block;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .auth-card {
