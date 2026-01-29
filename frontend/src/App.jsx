@@ -28,6 +28,7 @@ import OrderManagement from './pages/OrderManagement';
 import UserManagement from './pages/UserManagement';
 import BlogManagement from './pages/BlogManagement';
 import MediaManagement from './pages/MediaManagement';
+import TestUpload from './pages/TestUpload';
 import './App.css';
 
 // Component bảo vệ route admin
@@ -62,6 +63,7 @@ function AppContent() {
       <Route path="/register" element={<Register />} />
       <Route path="/profile" element={<Profile />} />
       <Route path="/orders" element={<Orders />} />
+      <Route path="/test-upload" element={<TestUpload />} />
 
       {/* Admin Routes */}
       <Route path="/admin/dashboard" element={<PrivateAdminRoute element={<AdminDashboard />} />} />

@@ -15,6 +15,7 @@ const reviewRoutes = require('./routes/reviewRoutes');
 const wishlistRoutes = require('./routes/wishlistRoutes');
 const saleRoutes = require('./routes/saleRoutes');
 const uploadRoutes = require('./routes/uploadRoutes');
+const uploadSimpleRoutes = require('./routes/uploadSimpleRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 
 // Load biến môi trường từ file .env
@@ -90,6 +91,7 @@ app.use('/api/reviews', reviewRoutes);
 app.use('/api/wishlist', wishlistRoutes);
 app.use('/api/sales', saleRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/upload-simple', uploadSimpleRoutes);
 app.use('/api/admin', adminRoutes);
 
 // Lấy PORT từ .env hoặc dùng 5000 mặc định

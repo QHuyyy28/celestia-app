@@ -4,6 +4,7 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const { protect } = require('../middlewares/auth');
+const { uploadProductImages } = require('../config/cloudinary');
 
 // Tạo thư mục uploads nếu chưa có
 const uploadDir = path.join(__dirname, '../uploads/qr-content');
@@ -399,6 +400,106 @@ router.delete('/files/:filename', protect, async (req, res) => {
             message: 'Lỗi khi xóa file: ' + error.message
         });
     }
+});
+
+// @desc    Upload ảnh sản phẩm lên Cloudinary
+// @route   POST /api/upload/product-images
+// @access  Private (Admin)
+router.post('/product-images', protect, (req, res) => {
+    // Kiểm tra quyền admin
+    if (req.user.role !== 'admin') {
+        return res.status(403).json({
+            success: false,
+            message: 'Chỉ Admin mới có quyền upload ảnh sản phẩm'
+        });
+    }
+
+    // Upload tối đa 5 ảnh cùng lúc
+    uploadProductImages.array('images', 5)(req, res, async (err) => {
+        if (err instanceof multer.MulterError) {
+            console.error('Multer error:', err);
+            return res.status(400).json({
+                success: false,
+                message: 'Lỗi upload: ' + err.message
+            });
+        } else if (err) {
+            console.error('Upload error:', err);
+            return res.status(400).json({
+                success: false,
+                message: err.message || 'Lỗi khi upload ảnh'
+            });
+        }
+
+        try {
+            if (!req.files || req.files.length === 0) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Không có ảnh được upload'
+                });
+            }
+
+            // Lấy URLs từ Cloudinary
+            const imageUrls = req.files.map(file => file.path);
+
+            res.json({
+                success: true,
+                message: `Upload thành công ${req.files.length} ảnh`,
+                data: {
+                    images: imageUrls,
+                    count: req.files.length
+                }
+            });
+        } catch (error) {
+            console.error('Upload response error:', error);
+            res.status(500).json({
+                success: false,
+                message: 'Lỗi khi upload ảnh: ' + error.message
+            });
+        }
+    });
+});
+
+// @desc    Upload 1 ảnh đơn lẻ lên Cloudinary
+// @route   POST /api/upload/single-image
+// @access  Private
+router.post('/single-image', protect, (req, res) => {
+    uploadProductImages.single('image')(req, res, async (err) => {
+        if (err instanceof multer.MulterError) {
+            return res.status(400).json({
+                success: false,
+                message: 'Lỗi upload: ' + err.message
+            });
+        } else if (err) {
+            return res.status(400).json({
+                success: false,
+                message: err.message || 'Lỗi khi upload ảnh'
+            });
+        }
+
+        try {
+            if (!req.file) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Không có ảnh được upload'
+                });
+            }
+
+            res.json({
+                success: true,
+                message: 'Upload ảnh thành công',
+                data: {
+                    url: req.file.path,
+                    publicId: req.file.filename
+                }
+            });
+        } catch (error) {
+            console.error('Upload response error:', error);
+            res.status(500).json({
+                success: false,
+                message: 'Lỗi khi upload ảnh: ' + error.message
+            });
+        }
+    });
 });
 
 module.exports = router;
