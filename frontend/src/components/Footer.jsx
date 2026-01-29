@@ -25,10 +25,10 @@ export const Footer = () => {
                             Every candle tells a story of elegance and serenity.
                         </p>
                         <div className="social-links">
-                            <a href="https://facebook.com" className="social-link" target="_blank" rel="noopener noreferrer">f</a>
-                            <a href="https://instagram.com" className="social-link" target="_blank" rel="noopener noreferrer">📷</a>
-                            <a href="https://pinterest.com" className="social-link" target="_blank" rel="noopener noreferrer">P</a>
-                            <a href="https://twitter.com" className="social-link" target="_blank" rel="noopener noreferrer">🐦</a>
+                            <a href="https://www.facebook.com/celestiacandle/" className="social-link" target="_blank" rel="noopener noreferrer"><i className="fa-brands fa-facebook"></i></a>
+                            <a href="https://instagram.com" className="social-link" target="_blank" rel="noopener noreferrer"><i className="fa-brands fa-instagram"></i></a>
+                            <a href="https://pinterest.com" className="social-link" target="_blank" rel="noopener noreferrer"><i className="fa-brands fa-pinterest"></i></a>
+                            {/* <a href="https://twitter.com" className="social-link" target="_blank" rel="noopener noreferrer">🐦</a> */}
                         </div>
                     </div>
 
