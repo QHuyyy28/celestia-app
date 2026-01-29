@@ -4,6 +4,7 @@ import { useAuth } from '../hooks/useAuth';
 import { useCart } from '../hooks/useCart';
 import { useWishlist } from '../hooks/useWishlist';
 import './Navbar.css';
+import Login from './../pages/Login';
 
 export const Navbar = () => {
     const { user, logout, isAuthenticated } = useAuth();
@@ -37,7 +38,7 @@ export const Navbar = () => {
                     <span className="logo-text">Celestia</span>
                 </Link>
 
-                <button 
+                <button
                     className="mobile-toggle"
                     onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                 >
@@ -55,13 +56,13 @@ export const Navbar = () => {
                     {isAuthenticated ? (
                         <>
                             <Link to="/wishlist" className="icon-link">
-                                ♡
+                                <i class="fa-regular fa-heart"></i>
                                 {wishlist?.totalItems > 0 && (
                                     <span className="icon-badge">{wishlist.totalItems}</span>
                                 )}
                             </Link>
                             <Link to="/cart" className="icon-link">
-                                🛍
+                                <i className="fa-solid fa-cart-arrow-down"></i>
                                 {cart?.totalItems > 0 && (
                                     <span className="icon-badge">{cart.totalItems}</span>
                                 )}
@@ -90,8 +91,8 @@ export const Navbar = () => {
                         </>
                     ) : (
                         <>
-                            <Link to="/login" className="icon-link">👤</Link>
-                            <Link to="/cart" className="icon-link">🛍</Link>
+                            <Link to="/login" className='login'>Login</Link>
+                            <Link to="/cart" className="icon-link"><i className="fa-solid fa-cart-arrow-down"></i></Link>
                         </>
                     )}
                 </div>

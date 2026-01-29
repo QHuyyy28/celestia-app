@@ -85,9 +85,6 @@ export const ProductCard = ({ product }) => {
             </div>
             <div className="product-info">
                 <div>
-                    <div className="product-category">
-                        {product.category?.name || 'Scented Candle'}
-                    </div>
                     <h3 className="product-name">{product.name}</h3>
                     {product.description && (
                         <p className="product-description">{product.description}</p>

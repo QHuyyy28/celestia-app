@@ -61,7 +61,7 @@ export default function Profile() {
     return (
         <div className="auth-container" style={{ minHeight: '80vh', paddingTop: '40px', paddingBottom: '40px' }}>
             <div className="auth-card" style={{ maxWidth: '600px' }}>
-                <div className="auth-icon">👤</div>
+                <div className="auth-icon"><i class="fa-solid fa-user"></i></div>
                 <h1 className="auth-title">Hồ sơ cá nhân</h1>
                 <p className="auth-subtitle">Quản lý thông tin tài khoản của bạn</p>
 
@@ -160,17 +160,17 @@ export default function Profile() {
                 </form>
 
                 <div style={{ marginTop: '30px', paddingTop: '20px', borderTop: '1px solid #e8dfd5' }}>
-                    <h3 style={{ fontSize: '16px', fontWeight: '600', color: '#5d4e37', marginBottom: '15px' }}>ℹ️ Thông tin tài khoản</h3>
+                    <h3 style={{ fontSize: '16px', fontWeight: '600', color: '#5d4e37', marginBottom: '15px' }}><i class="fa-solid fa-circle-info"></i> Thông tin tài khoản</h3>
                     <div style={{ fontSize: '14px', color: '#666', lineHeight: '1.8' }}>
-                        <p><strong>Vai trò:</strong> {user?.role === 'admin' ? '👨‍💼 Quản trị viên' : '👤 Khách hàng'}</p>
-                        <p><strong>Email xác nhận:</strong> {user?.isEmailVerified ? '✓ Đã xác nhận' : '⚠️ Chưa xác nhận'}</p>
+                        <p><strong>Vai trò:</strong> {user?.role === 'admin' ? 'Quản trị viên' : 'Khách hàng'}</p>
+                        <p><strong>Email xác nhận:</strong> {user?.isEmailVerified ? 'Đã xác nhận' : 'Chưa xác nhận'}</p>
                         <p><strong>Ngày tạo:</strong> {new Date(user?.createdAt).toLocaleDateString('vi-VN', { 
                             weekday: 'long', 
                             year: 'numeric', 
                             month: 'long', 
                             day: 'numeric' 
                         })}</p>
-                        <p><strong>Nhận thông báo:</strong> {user?.isSubscribedToNotifications ? '🔔 Bật' : '🔇 Tắt'}</p>
+                        <p><strong>Nhận thông báo:</strong> {user?.isSubscribedToNotifications ? 'Bật' : '🔇 Tắt'}</p>
                     </div>
                 </div>
             </div>

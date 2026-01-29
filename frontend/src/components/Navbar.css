@@ -110,6 +110,24 @@
   color: var(--secondary-brown);
 }
 
+.login {
+  text-decoration: none;
+  color: var(--primary-brown);
+  font-family: "Montserrat", sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  transition: color 0.3s ease;
+  padding: 5px 10px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.login:hover {
+  color: var(--secondary-brown);
+}
+
 .icon-badge {
   position: absolute;
   top: -8px;
@@ -437,3 +455,4 @@
     min-width: 50px;
   }
 }
+

@@ -12,7 +12,7 @@ export default function Cart() {
             <div className="cart-page">
                 <div className="cart-container">
                     <div className="empty-cart">
-                        <div className="empty-cart-icon">🛍️</div>
+                        {/* <div className="empty-cart-icon">🛍️</div> */}
                         <h2 className="empty-cart-title">Your Cart is Empty</h2>
                         <p className="empty-cart-text">Discover our collection and find something special</p>
                         <Link to="/products" className="btn-celestia">
