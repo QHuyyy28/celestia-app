@@ -100,8 +100,7 @@ exports.validateCreateProduct = [
         .optional()
         .isFloat({ min: 0 }).withMessage('Giá so sánh phải là số dương'),
     body('category')
-        .optional({ values: 'falsy' })
-        .isMongoId().withMessage('ID danh mục không hợp lệ'),
+        .optional({ values: 'falsy' }),
     body('stock')
         .notEmpty().withMessage('Số lượng không được để trống')
         .isInt({ min: 0 }).withMessage('Số lượng phải là số nguyên dương'),
@@ -133,8 +132,7 @@ exports.validateUpdateProduct = [
         .optional()
         .isFloat({ min: 0 }).withMessage('Giá so sánh phải là số dương'),
     body('category')
-        .optional()
-        .isMongoId().withMessage('ID danh mục không hợp lệ'),
+        .optional(),
     body('stock')
         .optional()
         .isInt({ min: 0 }).withMessage('Số lượng phải là số nguyên dương'),

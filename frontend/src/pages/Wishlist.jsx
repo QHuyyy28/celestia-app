@@ -11,7 +11,7 @@ export default function Wishlist() {
             <div className="wishlist-container">
                 <div className="container py-5">
                     <div className="wishlist-empty">
-                        <h2>❤️ Wishlist trống</h2>
+                        <h2>Wishlist trống</h2>
                         <p className="text-muted">Hãy thêm sản phẩm yêu thích của bạn</p>
                         <Link to="/products" className="btn btn-primary" style={{ backgroundColor: '#5d4e37', borderColor: '#5d4e37' }}>
                             Tiếp tục mua sắm
@@ -25,7 +25,7 @@ export default function Wishlist() {
     return (
         <div className="wishlist-container">
             <div className="container py-5">
-                <h1 className="wishlist-header">❤️ Danh sách yêu thích</h1>
+                <h1 className="wishlist-header">Danh sách yêu thích</h1>
 
                 <div className="row g-4">
                     {wishlist.items.filter(item => item && item.product && item.product._id).map(item => (

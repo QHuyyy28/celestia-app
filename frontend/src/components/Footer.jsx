@@ -79,11 +79,11 @@ export const Footer = () => {
                     <div className="copyright">
                         © 2025 Celestia Candles. All rights reserved.
                     </div>
-                    <div className="payment-methods">
+                    {/* <div className="payment-methods">
                         <span className="payment-icon">💳</span>
                         <span className="payment-icon">💰</span>
                         <span className="payment-icon">🏦</span>
-                    </div>
+                    </div> */}
                 </div>
             </div>
         </footer>
